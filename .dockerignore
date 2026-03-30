@@ -1,0 +1,7 @@
+bin/
+.git/
+.gitignore
+.cursor/
+*.exe
+data/
+.DS_Store
