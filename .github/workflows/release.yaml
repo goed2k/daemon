@@ -1,0 +1,39 @@
+name: goreleaser
+
+on:
+  push:
+    # run only against tags
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+  # packages: write
+  # issues: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '>=1.26'
+          cache: true
+      # More assembly might be required: Docker logins, GPG, etc. It all depends
+      # on your needs.
+      - run: go install mvdan.cc/garble@latest
+      - uses: goreleaser/goreleaser-action@v7
+        with:
+          # either 'goreleaser' (default) or 'goreleaser-pro':
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
+          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro'
+          # distribution:
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_GITHUB_TOKEN }}
