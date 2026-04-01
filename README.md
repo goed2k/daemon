@@ -36,11 +36,22 @@ go build -o bin/goed2kd ./cmd/goed2kd
 
 ### Docker（Alpine 多阶段镜像）
 
+本地构建：
+
 ```bash
 docker build -t goed2kd .
 docker run --rm -p 18080:18080 -p 4661:4661 -p 4662:4662/udp \
   -v goed2kd-data:/app/data goed2kd
 ```
+
+CI 发布（打 tag）时镜像同时推送到 **GitHub Container Registry** 与 **Docker Hub**，例如：
+
+```bash
+docker pull ghcr.io/chenjia404/goed2kd:latest
+docker pull chenjia404/goed2kd:latest
+```
+
+GHCR 为 private 时需先 `docker login ghcr.io`（PAT 含 `read:packages`）。Docker Hub 私有同理使用 `docker login`。
 
 首次启动会在数据卷内生成默认配置。若要从宿主机或其它机器访问容器内 RPC，请在配置中将 `rpc.listen` 改为 `0.0.0.0:18080` 且将 `rpc.allow_remote` 设为 `true`（否则校验会拒绝监听 `0.0.0.0`）。也可挂载自定义 `config.json`：`-v /path/config.json:/app/data/config/config.json`。
 

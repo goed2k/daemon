@@ -49,6 +49,7 @@ dockers_v2:
       - goed2kd
     images:
       - "ghcr.io/chenjia404/{{.ProjectName}}"
+      - "chenjia404/{{.ProjectName}}"
     tags:
       - "latest"
       - "dev"
