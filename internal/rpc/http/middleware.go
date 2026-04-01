@@ -62,11 +62,43 @@ func RecoverJSON(log *slog.Logger) func(http.Handler) http.Handler {
 	}
 }
 
+// CORS 为浏览器跨域请求补充响应头，并直接处理预检请求。
+// 当前实现对所有 Origin 放行，适合本项目的 Token 鉴权 RPC 场景。
+func CORS() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			origin := strings.TrimSpace(r.Header.Get("Origin"))
+			if origin != "" {
+				// 反射请求 Origin，便于浏览器在携带 Authorization 等头时通过校验。
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Add("Vary", "Origin")
+				w.Header().Add("Vary", "Access-Control-Request-Method")
+				w.Header().Add("Vary", "Access-Control-Request-Headers")
+			}
+
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, X-Auth-Token")
+			w.Header().Set("Access-Control-Max-Age", "86400")
+
+			if r.Method == http.MethodOptions {
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 // AuthToken Bearer 或X-Auth-Token 校验（health 除外）。
 func AuthToken(token string) func(http.Handler) http.Handler {
 	tok := strings.TrimSpace(token)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodOptions {
+				next.ServeHTTP(w, r)
+				return
+			}
 			if r.Method == http.MethodGet && r.URL.Path == "/api/v1/system/health" {
 				next.ServeHTTP(w, r)
 				return

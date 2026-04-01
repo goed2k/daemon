@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/chenjia404/goed2kd/internal/engine"
+	eventws "github.com/chenjia404/goed2kd/internal/rpc/ws"
 	"github.com/chenjia404/goed2kd/internal/service"
 	"github.com/chenjia404/goed2kd/internal/store"
-	eventws "github.com/chenjia404/goed2kd/internal/rpc/ws"
+	"github.com/go-chi/chi/v5"
 )
 
 // Server HTTP 依赖集合。
@@ -42,6 +42,7 @@ func NewRouter(s *Server) http.Handler {
 	r.Use(WithRequestLog(s.Log))
 	r.Use(RecoverJSON(s.Log))
 	r.Use(RealIP())
+	r.Use(CORS())
 	r.Use(accessLog(s.Log))
 
 	r.Route("/api/v1", func(r chi.Router) {
