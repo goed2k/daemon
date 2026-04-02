@@ -1,42 +1,42 @@
 # goed2kd
 
-基于 [goed2k](https://github.com/monkeyWie/goed2k) 的守护进程：在**不改动底层 ED2K 协议实现**的前提下，提供 **HTTP/JSON RPC** 与 **WebSocket** 事件，便于脚本、自动化与后续 Web UI 接入。
+A daemon built on [goed2k](https://github.com/monkeyWie/goed2k): without changing the underlying ED2K protocol implementation, it exposes **HTTP/JSON RPC** and **WebSocket** events for scripting, automation, and future Web UI integration.
 
-## 功能概览
+## Feature overview
 
-- **系统**：健康检查、运行信息、引擎启停、状态保存/加载、配置读写与热更新（部分字段）
-- **网络**：连接服务器、批量连接、加载 `server.met`、DHT 状态、启用 DHT、加载 `nodes.dat`、添加 KAD 引导节点
-- **下载任务**：添加 ED2K、列表/详情、暂停/恢复/删除、Peers、Pieces
-- **搜索**：发起搜索、当前快照、停止、从当前结果添加下载（同一时间仅一个活跃搜索，由底层约束）
-- **实时事件**：WebSocket 推送 `client.status`、`transfer.progress`
+- **System**: health checks, runtime info, engine start/stop, state save/load, config read/write and hot reload (selected fields)
+- **Network**: connect to servers, batch connect, load `server.met`, DHT status, enable DHT, load `nodes.dat`, add KAD bootstrap nodes
+- **Downloads**: add ED2K links, list/detail, pause/resume/remove, peers, pieces
+- **Search**: start search, current snapshot, stop, add downloads from current results (only one active search at a time, per underlying constraints)
+- **Live events**: WebSocket pushes `client.status`, `transfer.progress`
 
-## 架构要点
+## Architecture notes
 
-- HTTP 路由：[chi](https://github.com/go-chi/chi)
-- 分层：`rpc`（HTTP/WS）→ `service` → `engine`（唯一封装 `goed2k.Client`）→ `config` / `store`
-- Handler **不得**直接使用 `goed2k.Client`，业务一律经 `engine` 与 `service`
+- HTTP routing: [chi](https://github.com/go-chi/chi)
+- Layers: `rpc` (HTTP/WS) → `service` → `engine` (sole wrapper around `goed2k.Client`) → `config` / `store`
+- Handlers **must not** use `goed2k.Client` directly; all business logic goes through `engine` and `service`
 
-## 环境要求
+## Requirements
 
-- Go **1.25+**（与 [go.mod](./go.mod) 中 `go` 指令一致）
-- 依赖见 [go.mod](./go.mod)
+- Go **1.25+** (same as the `go` directive in [go.mod](./go.mod))
+- Dependencies: see [go.mod](./go.mod)
 
-Go 模块路径：`github.com/chenjia404/goed2kd`（作为库引用时使用该 import 前缀）。
+Go module path: `github.com/chenjia404/goed2kd` (use this import prefix when importing as a library).
 
-## 快速开始
+## Quick start
 
 ```bash
-# 开发运行（首次会在 -config 路径生成默认配置文件）
+# Run in development (first run creates default config at -config path)
 go run ./cmd/goed2kd -config data/config/config.json
 
-# 编译
+# Build
 go build -o bin/goed2kd ./cmd/goed2kd
 ./bin/goed2kd -config data/config/config.json
 ```
 
-### Docker（Alpine 多阶段镜像）
+### Docker (Alpine multi-stage image)
 
-本地构建：
+Build locally:
 
 ```bash
 docker build -t goed2kd .
@@ -44,73 +44,73 @@ docker run --rm -p 18080:18080 -p 4661:4661 -p 4662:4662/udp \
   -v goed2kd-data:/app/data goed2kd
 ```
 
-CI 发布（打 tag）时镜像同时推送到 **GitHub Container Registry** 与 **Docker Hub**，例如：
+On CI release (git tag), images are pushed to **GitHub Container Registry** and **Docker Hub**, for example:
 
 ```bash
 docker pull ghcr.io/chenjia404/goed2kd:latest
 docker pull chenjia404/goed2kd:latest
 ```
 
-GHCR 为 private 时需先 `docker login ghcr.io`（PAT 含 `read:packages`）。Docker Hub 私有同理使用 `docker login`。
+If GHCR is private, run `docker login ghcr.io` first (PAT needs `read:packages`). Same idea for private Docker Hub with `docker login`.
 
-首次启动会在数据卷内生成默认配置。若要从宿主机或其它机器访问容器内 RPC，请在配置中将 `rpc.listen` 改为 `0.0.0.0:18080` 且将 `rpc.allow_remote` 设为 `true`（否则校验会拒绝监听 `0.0.0.0`）。也可挂载自定义 `config.json`：`-v /path/config.json:/app/data/config/config.json`。
+First start creates default config inside the data volume. To reach RPC inside the container from the host or another machine, set `rpc.listen` to `0.0.0.0:18080` and `rpc.allow_remote` to `true` in config (otherwise validation rejects listening on `0.0.0.0`). You can also mount a custom `config.json`: `-v /path/config.json:/app/data/config/config.json`.
 
-默认监听 **`127.0.0.1:18080`**。默认 token 为 `change-me`，**生产环境务必修改**。
+Default bind is **`127.0.0.1:18080`**. Default token is `change-me`; **change it in production**.
 
-### 健康检查（无需 Token）
+### Health check (no token)
 
 ```bash
 curl -s http://127.0.0.1:18080/api/v1/system/health
 ```
 
-### 带鉴权示例
+### Authenticated example
 
 ```bash
 curl -s -H "Authorization: Bearer change-me" http://127.0.0.1:18080/api/v1/system/info
 ```
 
-## 配置说明
+## Configuration
 
-- 配置文件路径由启动参数 `-config` 指定，默认工程内常用为 `data/config/config.json`。
-- 若文件不存在，进程会**自动创建**一份与 [configs/config.example.json](./configs/config.example.json) 结构一致的默认配置。
-- 主要段落：
-  - **`rpc`**：`listen`、`auth_token`、`allow_remote`（为 `false` 时不允许监听 `0.0.0.0` / `::`）、读写超时
-  - **`engine`**：监听端口、UDP、DHT/UPnP、连接与上传相关参数、默认下载目录
-  - **`bootstrap`**：启动后引导用的服务器地址、`server.met` / `nodes.dat` URL、KAD 引导节点
-  - **`state`**：是否启用、`path`、`load_on_start`、`save_on_exit`、自动保存间隔（秒）
-  - **`logging`**：`level`（debug/info/warn/error）、日志文件路径
+- Config file path is set via `-config`; in-repo defaults often use `data/config/config.json`.
+- If the file is missing, the process **creates** a default config matching the structure of [configs/config.example.json](./configs/config.example.json).
+- Main sections:
+  - **`rpc`**: `listen`, `auth_token`, `allow_remote` (when `false`, binding to `0.0.0.0` / `::` is not allowed), read/write timeouts
+  - **`engine`**: listen ports, UDP, DHT/UPnP, connection and upload limits, default download directory
+  - **`bootstrap`**: servers used after startup, `server.met` / `nodes.dat` URLs, KAD bootstrap nodes
+  - **`state`**: enabled, `path`, `load_on_start`, `save_on_exit`, auto-save interval (seconds)
+  - **`logging`**: `level` (debug/info/warn/error), log file path
 
-状态文件由 **goed2k 自带机制**读写；守护进程负责路径、调度与退出时保存。
+State files are read/written by **goed2k’s built-in mechanism**; the daemon handles paths, scheduling, and save on exit.
 
-## 行为说明
+## Behavior
 
-- **启动流程**：加载配置 → 启动 HTTP → 启动事件桥接 → **自动尝试启动引擎**（失败时仍可提供 HTTP，便于稍后 `POST /system/start` 重试）。
-- **优雅退出**（SIGINT/SIGTERM）：关闭 HTTP 与事件桥接；若 `state.save_on_exit` 且引擎在运行，则保存状态后停止引擎。
-- **自动保存**：在启用 state 且配置间隔大于 0 时，通过 `goed2k` Client 的自动保存间隔与内部循环落盘（与 `state.auto_save_interval_seconds` 对齐）。
+- **Startup**: load config → start HTTP → start event bridge → **try to start the engine automatically** (HTTP stays up on failure so you can retry with `POST /system/start` later).
+- **Graceful shutdown** (SIGINT/SIGTERM): stop HTTP and event bridge; if `state.save_on_exit` and the engine is running, save state then stop the engine.
+- **Auto-save**: when state is enabled and the interval is greater than 0, uses goed2k Client’s auto-save interval and internal loop (aligned with `state.auto_save_interval_seconds`).
 
-## API 与 WebSocket
+## API and WebSocket
 
-完整接口说明（路径、请求体、响应字段、错误码、WS 协议）见：
+Full reference (paths, request/response bodies, error codes, WS protocol):
 
 **[docs/API.md](./docs/API.md)**
 
-## 仓库结构（节选）
+## Repository layout (excerpt)
 
 ```text
-cmd/goed2kd/          # 入口
+cmd/goed2kd/          # entrypoint
 internal/
-  app/                # 日志、Daemon 生命周期
-  config/             # 配置模型与加载
-  engine/             # goed2k 封装
-  model/              # DTO、错误码、事件模型
-  rpc/http/           # HTTP 路由与 Handler
-  rpc/ws/             # WebSocket Hub
-  service/            # 业务编排
-  store/              # 配置存储抽象
-configs/              # 配置样例
-docs/                 # 文档（含 API）
+  app/                # logging, daemon lifecycle
+  config/             # config model and loading
+  engine/             # goed2k wrapper
+  model/              # DTOs, error codes, event models
+  rpc/http/           # HTTP routes and handlers
+  rpc/ws/             # WebSocket hub
+  service/            # business orchestration
+  store/              # config storage abstraction
+configs/              # example config
+docs/                 # docs (including API)
 ```
 
-## 许可证
+## License
 
-若本仓库未单独声明许可证，请以仓库根目录 LICENSE 为准；依赖库 [goed2k](https://github.com/monkeyWie/goed2k) 以该项目许可证为准。
+If this repository does not specify a license separately, follow the LICENSE file at the repository root; the [goed2k](https://github.com/monkeyWie/goed2k) dependency is governed by that project’s license.
