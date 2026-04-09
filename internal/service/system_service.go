@@ -4,10 +4,10 @@ import (
 	"context"
 	"path/filepath"
 
-	"github.com/chenjia404/goed2kd/internal/config"
-	"github.com/chenjia404/goed2kd/internal/engine"
-	"github.com/chenjia404/goed2kd/internal/model"
-	"github.com/chenjia404/goed2kd/internal/store"
+	"github.com/goed2k/daemon/internal/config"
+	"github.com/goed2k/daemon/internal/engine"
+	"github.com/goed2k/daemon/internal/model"
+	"github.com/goed2k/daemon/internal/store"
 )
 
 // SystemService 系统与配置相关编排。

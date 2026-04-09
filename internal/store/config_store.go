@@ -3,7 +3,7 @@ package store
 import (
 	"sync"
 
-	"github.com/chenjia404/goed2kd/internal/config"
+	"github.com/goed2k/daemon/internal/config"
 )
 
 // AppConfigStore 持有当前守护进程配置指针（由上层在更新后替换）。

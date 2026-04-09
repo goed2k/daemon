@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/chenjia404/goed2kd/internal/engine"
-	"github.com/chenjia404/goed2kd/internal/model"
+	"github.com/goed2k/daemon/internal/engine"
+	"github.com/goed2k/daemon/internal/model"
 )
 
 // TransferService 下载任务编排。

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/chenjia404/goed2kd/internal/config"
+	"github.com/goed2k/daemon/internal/config"
 )
 
 // NewLogger 根据配置构造slog（同时写文件与标准错误）。

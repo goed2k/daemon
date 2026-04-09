@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/chenjia404/goed2kd/internal/model"
+	"github.com/goed2k/daemon/internal/model"
 )
 
 type ctxKey int

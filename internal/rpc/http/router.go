@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/chenjia404/goed2kd/internal/engine"
-	eventws "github.com/chenjia404/goed2kd/internal/rpc/ws"
-	"github.com/chenjia404/goed2kd/internal/service"
-	"github.com/chenjia404/goed2kd/internal/store"
+	"github.com/goed2k/daemon/internal/engine"
+	eventws "github.com/goed2k/daemon/internal/rpc/ws"
+	"github.com/goed2k/daemon/internal/service"
+	"github.com/goed2k/daemon/internal/store"
 	"github.com/go-chi/chi/v5"
 )
 

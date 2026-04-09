@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/chenjia404/goed2kd/internal/model"
+	"github.com/goed2k/daemon/internal/model"
 )
 
 // Hub WebSocket 广播中心：慢客户端丢事件不阻塞全局。

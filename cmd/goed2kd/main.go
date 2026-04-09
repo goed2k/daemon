@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/chenjia404/goed2kd/internal/app"
-	"github.com/chenjia404/goed2kd/internal/config"
+	"github.com/goed2k/daemon/internal/app"
+	"github.com/goed2k/daemon/internal/config"
 )
 
 func main() {

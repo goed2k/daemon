@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/chenjia404/goed2kd/internal/model"
+	"github.com/goed2k/daemon/internal/model"
 )
 
 // APIResponse 统一 HTTP JSON 响应。

@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/chenjia404/goed2kd/internal/model"
-	"github.com/chenjia404/goed2kd/internal/service"
+	"github.com/goed2k/daemon/internal/model"
+	"github.com/goed2k/daemon/internal/service"
 )
 
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {

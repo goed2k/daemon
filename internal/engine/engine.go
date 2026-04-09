@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/goed2k/core"
-	"github.com/chenjia404/goed2kd/internal/config"
-	"github.com/chenjia404/goed2kd/internal/model"
-	"github.com/chenjia404/goed2kd/internal/store"
+	"github.com/goed2k/daemon/internal/config"
+	"github.com/goed2k/daemon/internal/model"
+	"github.com/goed2k/daemon/internal/store"
 )
 
 // Engine 封装唯一 goed2k.Client，所有对内核的访问经此入口。

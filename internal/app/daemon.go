@@ -11,13 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/chenjia404/goed2kd/internal/config"
-	"github.com/chenjia404/goed2kd/internal/engine"
-	"github.com/chenjia404/goed2kd/internal/model"
-	httpapi "github.com/chenjia404/goed2kd/internal/rpc/http"
-	eventws "github.com/chenjia404/goed2kd/internal/rpc/ws"
-	"github.com/chenjia404/goed2kd/internal/service"
-	"github.com/chenjia404/goed2kd/internal/store"
+	"github.com/goed2k/daemon/internal/config"
+	"github.com/goed2k/daemon/internal/engine"
+	"github.com/goed2k/daemon/internal/model"
+	httpapi "github.com/goed2k/daemon/internal/rpc/http"
+	eventws "github.com/goed2k/daemon/internal/rpc/ws"
+	"github.com/goed2k/daemon/internal/service"
+	"github.com/goed2k/daemon/internal/store"
 )
 
 // Daemon 聚合配置、引擎、HTTP 与事件桥接。

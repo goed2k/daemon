@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/chenjia404/goed2kd/internal/engine"
-	"github.com/chenjia404/goed2kd/internal/model"
+	"github.com/goed2k/daemon/internal/engine"
+	"github.com/goed2k/daemon/internal/model"
 )
 
 // SearchService 搜索编排（单活跃搜索由底层保证）。

@@ -6,7 +6,7 @@ import (
 	"github.com/goed2k/core"
 	"github.com/goed2k/core/protocol"
 
-	"github.com/chenjia404/goed2kd/internal/model"
+	"github.com/goed2k/daemon/internal/model"
 )
 
 func mapServer(s goed2k.ServerSnapshot) model.ServerDTO {

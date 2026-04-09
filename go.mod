@@ -1,4 +1,4 @@
-module github.com/chenjia404/goed2kd
+module github.com/goed2k/daemon
 
 go 1.25
 

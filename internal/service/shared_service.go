@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/chenjia404/goed2kd/internal/engine"
-	"github.com/chenjia404/goed2kd/internal/model"
+	"github.com/goed2k/daemon/internal/engine"
+	"github.com/goed2k/daemon/internal/model"
 )
 
 // SharedService 共享库编排（封装 goed2k/core Client 共享 API）。

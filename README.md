@@ -22,7 +22,7 @@ A daemon built on [goed2k/core](https://github.com/goed2k/core): without changin
 - Go **1.25+** (same as the `go` directive in [go.mod](./go.mod))
 - Dependencies: see [go.mod](./go.mod)
 
-Go module path: `github.com/chenjia404/goed2kd` (use this import prefix when importing as a library).
+Go module path: `github.com/goed2k/daemon` (use this import prefix when importing as a library).
 
 ## Quick start
 
