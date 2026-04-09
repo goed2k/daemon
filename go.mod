@@ -4,6 +4,6 @@ go 1.25
 
 require (
 	github.com/go-chi/chi/v5 v5.2.2
+	github.com/goed2k/core v0.0.0-20260409135625-9dd0245ad94e
 	github.com/gorilla/websocket v1.5.3
-	github.com/monkeyWie/goed2k v0.0.0-20260403055011-a8f73dee6faa
 )

@@ -1,6 +1,6 @@
 github.com/go-chi/chi/v5 v5.2.2 h1:CMwsvRVTbXVytCk1Wd72Zy1LAsAh9GxMmSNWLHCG618=
 github.com/go-chi/chi/v5 v5.2.2/go.mod h1:L2yAIGWB3H+phAw1NxKwWM+7eUH/lU8pOMm5hHcoops=
+github.com/goed2k/core v0.0.0-20260409135625-9dd0245ad94e h1:eqCELZrvRt484ipMa40bz4Su+vQv/w34RmFy2KK+gl0=
+github.com/goed2k/core v0.0.0-20260409135625-9dd0245ad94e/go.mod h1:RL+1Qvou5ec37dQfVU/khsTYE4qFjnYg3pAA1KlR+Ac=
 github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
 github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
-github.com/monkeyWie/goed2k v0.0.0-20260403055011-a8f73dee6faa h1:8JjaDW1OWpoPXZmPH5xfaK6vC3S+b6FvUNvztliGbVA=
-github.com/monkeyWie/goed2k v0.0.0-20260403055011-a8f73dee6faa/go.mod h1:Ry2y1QlzerUgA1hVmExBdXXzE4Sjk1M7w0nSh6dhDOg=

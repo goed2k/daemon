@@ -1,6 +1,6 @@
 # goed2kd
 
-A daemon built on [goed2k](https://github.com/monkeyWie/goed2k): without changing the underlying ED2K protocol implementation, it exposes **HTTP/JSON RPC** and **WebSocket** events for scripting, automation, and future Web UI integration.
+A daemon built on [goed2k/core](https://github.com/goed2k/core): without changing the underlying ED2K protocol implementation, it exposes **HTTP/JSON RPC** and **WebSocket** events for scripting, automation, and future Web UI integration.
 
 ## Feature overview
 
@@ -8,6 +8,7 @@ A daemon built on [goed2k](https://github.com/monkeyWie/goed2k): without changin
 - **Network**: connect to servers, batch connect, load `server.met`, DHT status, enable DHT, load `nodes.dat`, add KAD bootstrap nodes
 - **Downloads**: add ED2K links, list/detail, pause/resume/remove, peers, pieces
 - **Search**: start search, current snapshot, stop, add downloads from current results (only one active search at a time, per underlying constraints)
+- **Shared library**: list shared files, add/remove scan dirs, rescan dirs, import file, remove by hash (aligned with goed2k/core shared APIs)
 - **Live events**: WebSocket pushes `client.status`, `transfer.progress`
 
 ## Architecture notes
@@ -113,4 +114,4 @@ docs/                 # docs (including API)
 
 ## License
 
-If this repository does not specify a license separately, follow the LICENSE file at the repository root; the [goed2k](https://github.com/monkeyWie/goed2k) dependency is governed by that project’s license.
+If this repository does not specify a license separately, follow the LICENSE file at the repository root; the [goed2k/core](https://github.com/goed2k/core) dependency is governed by that project’s license.

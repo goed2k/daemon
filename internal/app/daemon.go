@@ -33,6 +33,7 @@ type Daemon struct {
 	Net      *service.NetworkService
 	Transfer *service.TransferService
 	Search   *service.SearchService
+	Shared   *service.SharedService
 
 	httpServer *http.Server
 	bridgeStop context.CancelFunc
@@ -54,6 +55,7 @@ func NewDaemon(log *slog.Logger, configPath string, cfg *config.Config) *Daemon 
 		Net:        service.NewNetworkService(eng),
 		Transfer:   service.NewTransferService(eng),
 		Search:     service.NewSearchService(eng),
+		Shared:     service.NewSharedService(eng),
 	}
 }
 
@@ -93,6 +95,7 @@ func (d *Daemon) Run() error {
 		Net:                d.Net,
 		Transfer:           d.Transfer,
 		Search:             d.Search,
+		Shared:             d.Shared,
 		AuthToken:          d.Cfg.RPC.AuthToken,
 		ReadTimeoutSeconds: d.Cfg.RPC.ReadTimeoutSeconds,
 	}

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/monkeyWie/goed2k"
+	"github.com/goed2k/core"
 	"github.com/chenjia404/goed2kd/internal/config"
 	"github.com/chenjia404/goed2kd/internal/model"
 	"github.com/chenjia404/goed2kd/internal/store"
@@ -641,6 +641,97 @@ func (e *Engine) AddTransferFromSearchResult(ctx context.Context, hashHex string
 	np := p
 	np.ED2KLink = linkStr
 	return e.AddTransferByED2K(ctx, np)
+}
+
+// SharedFiles 返回共享库文件列表。
+func (e *Engine) SharedFiles(ctx context.Context) ([]model.SharedFileDTO, error) {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return nil, err
+	}
+	files := cli.SharedFiles()
+	out := make([]model.SharedFileDTO, 0, len(files))
+	for _, f := range files {
+		out = append(out, mapSharedFile(f))
+	}
+	return out, nil
+}
+
+// ListSharedDirs 返回已注册的共享扫描目录。
+func (e *Engine) ListSharedDirs(ctx context.Context) ([]string, error) {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return nil, err
+	}
+	return cli.ListSharedDirs(), nil
+}
+
+// AddSharedDir 注册共享扫描目录。
+func (e *Engine) AddSharedDir(ctx context.Context, path string) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(path) == "" {
+		return model.NewAppError(model.CodeBadRequest, "path required", nil)
+	}
+	return cli.AddSharedDir(path)
+}
+
+// RemoveSharedDir 移除共享扫描目录。
+func (e *Engine) RemoveSharedDir(ctx context.Context, path string) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(path) == "" {
+		return model.NewAppError(model.CodeBadRequest, "path required", nil)
+	}
+	return cli.RemoveSharedDir(path)
+}
+
+// RescanSharedDirs 重新扫描已注册目录并导入文件。
+func (e *Engine) RescanSharedDirs(ctx context.Context) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	return cli.RescanSharedDirs()
+}
+
+// ImportSharedFile 计算 ed2k 哈希并将文件加入共享库。
+func (e *Engine) ImportSharedFile(ctx context.Context, path string) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	if strings.TrimSpace(path) == "" {
+		return model.NewAppError(model.CodeBadRequest, "path required", nil)
+	}
+	return cli.ImportSharedFile(path)
+}
+
+// RemoveSharedFile 从共享库按 hash 移除。
+func (e *Engine) RemoveSharedFile(ctx context.Context, hashHex string) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	h, herr := parseHashParam(hashHex)
+	if herr != nil {
+		return model.NewAppError(model.CodeInvalidHash, "invalid hash", herr)
+	}
+	if !cli.RemoveSharedFile(h) {
+		return model.NewAppError(model.CodeSharedFileNotFound, "shared file not found", nil)
+	}
+	return nil
 }
 
 // RunContext 返回与引擎运行期绑定的context（Stop 时取消）。

@@ -3,8 +3,8 @@ package engine
 import (
 	"strings"
 
-	"github.com/monkeyWie/goed2k"
-	"github.com/monkeyWie/goed2k/protocol"
+	"github.com/goed2k/core"
+	"github.com/goed2k/core/protocol"
 
 	"github.com/chenjia404/goed2kd/internal/model"
 )
@@ -216,6 +216,33 @@ func parseHashParam(hexHash string) (protocol.Hash, error) {
 		return protocol.Invalid, err
 	}
 	return h, nil
+}
+
+func sharedOriginString(o goed2k.SharedOrigin) string {
+	switch o {
+	case goed2k.SharedOriginDownloaded:
+		return "downloaded"
+	case goed2k.SharedOriginImported:
+		return "imported"
+	default:
+		return "unknown"
+	}
+}
+
+func mapSharedFile(f *goed2k.SharedFile) model.SharedFileDTO {
+	if f == nil {
+		return model.SharedFileDTO{}
+	}
+	return model.SharedFileDTO{
+		Hash:       f.Hash.String(),
+		FileSize:   f.FileSize,
+		Path:       f.Path,
+		Name:       f.FileLabel(),
+		Origin:     sharedOriginString(f.Origin),
+		Completed:  f.Completed,
+		CanUpload:  f.CanUpload(),
+		LastHashAt: f.LastHashAt,
+	}
 }
 
 func mapProgressEvent(ev goed2k.TransferProgressEvent) model.TransferProgressEventDTO {

@@ -25,6 +25,7 @@ type Server struct {
 	Net      *service.NetworkService
 	Transfer *service.TransferService
 	Search   *service.SearchService
+	Shared   *service.SharedService
 
 	AuthToken          string
 	ReadTimeoutSeconds int
@@ -80,6 +81,14 @@ func NewRouter(s *Server) http.Handler {
 		r.Get("/searches/current", s.handleSearchesCurrent)
 		r.Post("/searches/current/stop", s.handleSearchesStop)
 		r.Post("/searches/current/results/{hash}/download", s.handleSearchesResultDownload)
+
+		r.Get("/shared/files", s.handleSharedFilesList)
+		r.Get("/shared/dirs", s.handleSharedDirsList)
+		r.Post("/shared/dirs", s.handleSharedDirsAdd)
+		r.Post("/shared/dirs/remove", s.handleSharedDirsRemove)
+		r.Post("/shared/dirs/rescan", s.handleSharedDirsRescan)
+		r.Post("/shared/import", s.handleSharedImport)
+		r.Delete("/shared/files/{hash}", s.handleSharedFileRemove)
 
 		r.Get("/events/ws", s.Hub.ServeWS(s.Log, s.AuthToken))
 	})

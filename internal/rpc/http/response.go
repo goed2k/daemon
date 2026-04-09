@@ -59,7 +59,7 @@ func codeToHTTPStatus(code string) int {
 		return http.StatusUnauthorized
 	case model.CodeForbidden:
 		return http.StatusForbidden
-	case model.CodeNotFound, model.CodeTransferNotFound, model.CodeSearchNotRunning:
+	case model.CodeNotFound, model.CodeTransferNotFound, model.CodeSharedFileNotFound, model.CodeSearchNotRunning:
 		return http.StatusNotFound
 	case model.CodeEngineNotRunning:
 		return http.StatusServiceUnavailable

@@ -13,6 +13,7 @@ const (
 	CodeInvalidHash          = "INVALID_HASH"
 	CodeInvalidED2KLink      = "INVALID_ED2K_LINK"
 	CodeTransferNotFound     = "TRANSFER_NOT_FOUND"
+	CodeSharedFileNotFound   = "SHARED_FILE_NOT_FOUND"
 	CodeSearchNotRunning     = "SEARCH_NOT_RUNNING"
 	CodeSearchAlreadyRunning = "SEARCH_ALREADY_RUNNING"
 	CodeConfigInvalid        = "CONFIG_INVALID"

@@ -171,3 +171,15 @@ type SearchDTO struct {
 type TransferProgressEventDTO struct {
 	Transfers []TransferDTO `json:"transfers"`
 }
+
+// SharedFileDTO 共享库中的单条文件（与内核 SharedFile 对齐）。
+type SharedFileDTO struct {
+	Hash       string `json:"hash"`
+	FileSize   int64  `json:"file_size"`
+	Path       string `json:"path"`
+	Name       string `json:"name"`
+	Origin     string `json:"origin"` // downloaded | imported
+	Completed  bool   `json:"completed"`
+	CanUpload  bool   `json:"can_upload"`
+	LastHashAt int64  `json:"last_hash_at"`
+}

@@ -39,7 +39,7 @@
 | `BAD_REQUEST`, `INVALID_HASH`, `INVALID_ED2K_LINK`, `CONFIG_INVALID` | 400 |
 | `UNAUTHORIZED` | 401 |
 | `FORBIDDEN` | 403 |
-| `NOT_FOUND`, `TRANSFER_NOT_FOUND`, `SEARCH_NOT_RUNNING` | 404 |
+| `NOT_FOUND`, `TRANSFER_NOT_FOUND`, `SHARED_FILE_NOT_FOUND`, `SEARCH_NOT_RUNNING` | 404 |
 | `ENGINE_NOT_RUNNING` | 503 |
 | `ENGINE_ALREADY_RUNNING`, `SEARCH_ALREADY_RUNNING`, `STATE_STORE_ERROR` | 409 |
 | `INTERNAL_ERROR` | 500 |
@@ -74,6 +74,7 @@
 | `INVALID_HASH` | 任务 hash 格式无效（32 位十六进制） |
 | `INVALID_ED2K_LINK` | ED2K 链接无效或非文件链 |
 | `TRANSFER_NOT_FOUND` | 找不到对应任务 |
+| `SHARED_FILE_NOT_FOUND` | 共享库中不存在该 hash |
 | `SEARCH_NOT_RUNNING` | 当前无运行中搜索（预留/部分场景） |
 | `SEARCH_ALREADY_RUNNING` | 已有活跃搜索，需先停止 |
 | `CONFIG_INVALID` | 配置校验失败 |
@@ -373,6 +374,75 @@
 ```
 
 **响应 `data`：** `TransferDTO`。
+
+---
+
+## 共享库 `/shared`
+
+对应 [goed2k/core](https://github.com/goed2k/core) 的 `Client` 共享 API：`SharedFiles`、`AddSharedDir`、`RemoveSharedDir`、`ListSharedDirs`、`RescanSharedDirs`、`ImportSharedFile`、`RemoveSharedFile`。引擎未运行时返回 `ENGINE_NOT_RUNNING`。
+
+### GET `/shared/files`
+
+**响应 `data`：** `SharedFileDTO` 数组。
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `hash` | string | ED2K 根哈希（十六进制） |
+| `file_size` | int64 | 字节 |
+| `path` | string | 本地路径 |
+| `name` | string | 展示名（通常文件名） |
+| `origin` | string | `downloaded`（下载完成入库）或 `imported`（本地导入） |
+| `completed` | bool | 是否视为可共享完成态 |
+| `can_upload` | bool | 是否可向其他 peer 上传 |
+| `last_hash_at` | int64 | 最近哈希时间戳（内核语义） |
+
+### GET `/shared/dirs`
+
+**响应 `data`：** 字符串数组，已注册的扫描目录绝对路径。
+
+### POST `/shared/dirs`
+
+注册一个用于扫描的目录（须为已存在目录）。
+
+```json
+{ "path": "/path/to/dir" }
+```
+
+**响应 `data`：** `{ "ok": true }`
+
+### POST `/shared/dirs/remove`
+
+移除扫描目录（不删除磁盘文件）。
+
+```json
+{ "path": "/path/to/dir" }
+```
+
+**响应 `data`：** `{ "ok": true }`
+
+### POST `/shared/dirs/rescan`
+
+扫描已注册目录下的普通文件并尝试导入共享库（与内核 `RescanSharedDirs` 一致）。
+
+**响应 `data`：** `{ "ok": true }`
+
+### POST `/shared/import`
+
+对单个文件计算 ED2K 元数据并加入共享库。
+
+```json
+{ "path": "/path/to/file.ext" }
+```
+
+**响应 `data`：** `{ "ok": true }`（若 hash 已存在，内核不覆盖，仍可能成功返回）
+
+### DELETE `/shared/files/{hash}`
+
+**路径参数：** `{hash}` 为 32 位十六进制 ED2K 哈希。
+
+**响应 `data`：** `{ "ok": true }`
+
+若 hash 不在共享库中，返回 `SHARED_FILE_NOT_FOUND`。
 
 ---
 

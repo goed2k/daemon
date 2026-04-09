@@ -372,3 +372,91 @@ func (s *Server) handleSearchesResultDownload(w http.ResponseWriter, r *http.Req
 	log.Info("audit", "action", "search.result_download", "hash", hash)
 	WriteSuccess(w, t)
 }
+
+func (s *Server) handleSharedFilesList(w http.ResponseWriter, r *http.Request) {
+	list, err := s.Shared.ListFiles(r.Context())
+	if err != nil {
+		WriteError(w, RequestLog(r), err)
+		return
+	}
+	WriteSuccess(w, list)
+}
+
+func (s *Server) handleSharedDirsList(w http.ResponseWriter, r *http.Request) {
+	list, err := s.Shared.ListDirs(r.Context())
+	if err != nil {
+		WriteError(w, RequestLog(r), err)
+		return
+	}
+	WriteSuccess(w, list)
+}
+
+type sharedPathBody struct {
+	Path string `json:"path"`
+}
+
+func (s *Server) handleSharedDirsAdd(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	var body sharedPathBody
+	if err := decodeJSON(r, &body); err != nil {
+		WriteError(w, log, model.NewAppError(model.CodeBadRequest, "invalid json", err))
+		return
+	}
+	if err := s.Shared.AddDir(r.Context(), body.Path); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "shared.dir_add", "path", body.Path)
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
+func (s *Server) handleSharedDirsRemove(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	var body sharedPathBody
+	if err := decodeJSON(r, &body); err != nil {
+		WriteError(w, log, model.NewAppError(model.CodeBadRequest, "invalid json", err))
+		return
+	}
+	if err := s.Shared.RemoveDir(r.Context(), body.Path); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "shared.dir_remove", "path", body.Path)
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
+func (s *Server) handleSharedDirsRescan(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	if err := s.Shared.RescanDirs(r.Context()); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "shared.dirs_rescan")
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
+func (s *Server) handleSharedImport(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	var body sharedPathBody
+	if err := decodeJSON(r, &body); err != nil {
+		WriteError(w, log, model.NewAppError(model.CodeBadRequest, "invalid json", err))
+		return
+	}
+	if err := s.Shared.ImportFile(r.Context(), body.Path); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "shared.import", "path", body.Path)
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
+func (s *Server) handleSharedFileRemove(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	hash := chi.URLParam(r, "hash")
+	if err := s.Shared.RemoveFile(r.Context(), hash); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "shared.file_remove", "hash", hash)
+	WriteSuccess(w, map[string]any{"ok": true})
+}

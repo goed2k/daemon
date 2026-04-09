@@ -1,6 +1,6 @@
 # goed2kd
 
-基于 [goed2k](https://github.com/monkeyWie/goed2k) 的守护进程：在**不改动底层 ED2K 协议实现**的前提下，提供 **HTTP/JSON RPC** 与 **WebSocket** 事件，便于脚本、自动化与后续 Web UI 接入。
+基于 [goed2k/core](https://github.com/goed2k/core) 的守护进程：在**不改动底层 ED2K 协议实现**的前提下，提供 **HTTP/JSON RPC** 与 **WebSocket** 事件，便于脚本、自动化与后续 Web UI 接入。
 
 ## 功能概览
 
@@ -8,6 +8,7 @@
 - **网络**：连接服务器、批量连接、加载 `server.met`、DHT 状态、启用 DHT、加载 `nodes.dat`、添加 KAD 引导节点
 - **下载任务**：添加 ED2K、列表/详情、暂停/恢复/删除、Peers、Pieces
 - **搜索**：发起搜索、当前快照、停止、从当前结果添加下载（同一时间仅一个活跃搜索，由底层约束）
+- **共享库**：列出共享文件、注册/移除扫描目录、重扫目录、导入文件、按 hash 移除（与 goed2k/core 共享 API 对齐）
 - **实时事件**：WebSocket 推送 `client.status`、`transfer.progress`
 
 ## 架构要点
@@ -113,4 +114,4 @@ docs/                 # 文档（含 API）
 
 ## 许可证
 
-若本仓库未单独声明许可证，请以仓库根目录 LICENSE 为准；依赖库 [goed2k](https://github.com/monkeyWie/goed2k) 以该项目许可证为准。
+若本仓库未单独声明许可证，请以仓库根目录 LICENSE 为准；依赖库 [goed2k/core](https://github.com/goed2k/core) 以该项目许可证为准。
