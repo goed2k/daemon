@@ -109,6 +109,15 @@ func mapPiece(p goed2k.PieceSnapshot) model.PieceDTO {
 	}
 }
 
+func mapClientPeerEntry(p goed2k.ClientPeerSnapshot) model.ClientPeerEntryDTO {
+	return model.ClientPeerEntryDTO{
+		TransferHash: p.TransferHash.String(),
+		FileName:     p.FileName,
+		FilePath:     p.FilePath,
+		Peer:         mapPeer(p.Peer),
+	}
+}
+
 func mapClientStatus(engineRunning bool, st goed2k.ClientStatus, dht goed2k.DHTStatus) model.ClientStatusDTO {
 	servers := make([]model.ServerDTO, 0, len(st.Servers))
 	for _, s := range st.Servers {
@@ -118,10 +127,15 @@ func mapClientStatus(engineRunning bool, st goed2k.ClientStatus, dht goed2k.DHTS
 	for _, t := range st.Transfers {
 		transfers = append(transfers, mapTransfer(t))
 	}
+	peers := make([]model.ClientPeerEntryDTO, 0, len(st.Peers))
+	for _, p := range st.Peers {
+		peers = append(peers, mapClientPeerEntry(p))
+	}
 	return model.ClientStatusDTO{
 		EngineRunning: engineRunning,
 		Servers:       servers,
 		Transfers:     transfers,
+		Peers:         peers,
 		DHT:           mapDHT(dht),
 		Totals: map[string]any{
 			"total_done":     st.TotalDone,

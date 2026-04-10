@@ -60,6 +60,7 @@ func NewRouter(s *Server) http.Handler {
 		r.Put("/system/config", s.handlePutConfig)
 
 		r.Get("/network/servers", s.handleNetworkServers)
+		r.Get("/network/peers", s.handleNetworkPeers)
 		r.Post("/network/servers/connect", s.handleNetworkConnect)
 		r.Post("/network/servers/connect-batch", s.handleNetworkConnectBatch)
 		r.Post("/network/servers/load-met", s.handleNetworkLoadMet)

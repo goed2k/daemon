@@ -194,6 +194,21 @@
 | `upload_rate` | int | 上传速率 |
 | `milliseconds_since_last_receive` | int64 | 距上次接收毫秒 |
 
+### GET `/network/peers`
+
+**响应 `data`：** `ClientPeerEntryDTO` 数组。列出当前所有下载任务上的**对端**（与底层 `ClientStatus.Peers` / 各任务 `PeerInfo` 一致），即全局「已知客户端」视图。
+
+每条包含：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `transfer_hash` | string | 所属任务文件哈希（十六进制） |
+| `file_name` | string | 任务文件名 |
+| `file_path` | string | 本地路径 |
+| `peer` | `PeerDTO` | 对端详情（与 `GET /transfers/{hash}/peers` 中单条结构相同） |
+
+引擎未运行或尚无任务/对端时返回空数组 `[]`（若引擎未启动则可能返回 `503` / `ENGINE_NOT_RUNNING`，与现有接口一致）。
+
 ### POST `/network/servers/connect`
 
 ```json

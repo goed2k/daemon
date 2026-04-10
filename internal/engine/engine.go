@@ -308,6 +308,21 @@ func (e *Engine) DHTStatus(ctx context.Context) (*model.DHTStatusDTO, error) {
 	return &dd, nil
 }
 
+// KnownPeers 当前所有下载任务上的对端（全局已知客户端列表）。
+func (e *Engine) KnownPeers(ctx context.Context) ([]model.ClientPeerEntryDTO, error) {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return nil, err
+	}
+	st := cli.Status()
+	out := make([]model.ClientPeerEntryDTO, 0, len(st.Peers))
+	for _, p := range st.Peers {
+		out = append(out, mapClientPeerEntry(p))
+	}
+	return out, nil
+}
+
 // ConnectServer 连接单个服务器。
 func (e *Engine) ConnectServer(ctx context.Context, addr string) error {
 	_ = ctx

@@ -96,6 +96,15 @@ func (s *Server) handleNetworkServers(w http.ResponseWriter, r *http.Request) {
 	WriteSuccess(w, list)
 }
 
+func (s *Server) handleNetworkPeers(w http.ResponseWriter, r *http.Request) {
+	list, err := s.Net.KnownPeers(r.Context())
+	if err != nil {
+		WriteError(w, RequestLog(r), err)
+		return
+	}
+	WriteSuccess(w, list)
+}
+
 type connectOne struct {
 	Address string `json:"address"`
 }

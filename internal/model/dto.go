@@ -84,6 +84,14 @@ type PeerDTO struct {
 	FailCount            int    `json:"fail_count"`
 }
 
+// ClientPeerEntryDTO 全局「已知客户端」：某下载任务上的一条对端（与 core ClientPeerSnapshot 对应）。
+type ClientPeerEntryDTO struct {
+	TransferHash string  `json:"transfer_hash"`
+	FileName     string  `json:"file_name"`
+	FilePath     string  `json:"file_path"`
+	Peer         PeerDTO `json:"peer"`
+}
+
 // PieceDTO 分片快照。
 type PieceDTO struct {
 	Index         int    `json:"index"`
@@ -129,11 +137,12 @@ type DHTStatusDTO struct {
 
 // ClientStatusDTO 引擎整体状态快照（用于 WS client.status）。
 type ClientStatusDTO struct {
-	EngineRunning bool           `json:"engine_running"`
-	Servers       []ServerDTO    `json:"servers"`
-	Transfers     []TransferDTO  `json:"transfers"`
-	DHT           DHTStatusDTO   `json:"dht"`
-	Totals        map[string]any `json:"totals"`
+	EngineRunning bool                 `json:"engine_running"`
+	Servers       []ServerDTO          `json:"servers"`
+	Transfers     []TransferDTO        `json:"transfers"`
+	Peers         []ClientPeerEntryDTO `json:"peers"`
+	DHT           DHTStatusDTO         `json:"dht"`
+	Totals        map[string]any       `json:"totals"`
 }
 
 // SearchParamsDTO 搜索参数（HTTP 入参）。

@@ -27,6 +27,11 @@ func (s *NetworkService) DHT(ctx context.Context) (*model.DHTStatusDTO, error) {
 	return s.eng.DHTStatus(ctx)
 }
 
+// KnownPeers 全局已知客户端（各任务上的对端）。
+func (s *NetworkService) KnownPeers(ctx context.Context) ([]model.ClientPeerEntryDTO, error) {
+	return s.eng.KnownPeers(ctx)
+}
+
 // Connect 单服务器。
 func (s *NetworkService) Connect(ctx context.Context, addr string) error {
 	return s.eng.ConnectServer(ctx, addr)
