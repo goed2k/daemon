@@ -7,3 +7,5 @@ require (
 	github.com/goed2k/core v0.0.2
 	github.com/gorilla/websocket v1.5.3
 )
+
+replace github.com/goed2k/core => ../core

@@ -183,13 +183,23 @@
 |------|------|------|
 | `identifier` | string | 连接标识 |
 | `address` | string | 地址 |
+| `name` | string | 服务器名（来自 `server.met`，若通过 `ConnectServerMet` 连接） |
+| `description` | string | 描述（同上） |
 | `configured` | bool | 是否已配置 |
 | `connected` | bool | 是否连接 |
 | `handshake_completed` | bool | 握手是否完成 |
 | `primary` | bool | 是否主连接 |
 | `disconnecting` | bool | 是否正在断开 |
-| `client_id` | int32 | 客户端 ID |
-| `id_class` | string | 如 `HIGH_ID` / `LOW_ID` / `UNKNOWN` |
+| `client_id` | int32 | **本机**在该服务器分配的客户端 ID |
+| `id_class` | string | 本机 ID 类型：`HIGH_ID` / `LOW_ID` / `UNKNOWN` |
+| `tcp_flags` | int32 | 服务器 `IdChange` 中的 TCP 标志（原始值） |
+| `reported_ip` | uint32 | 扩展 `IdChange` 中的 ReportedIP（若有） |
+| `obfuscation_tcp_port` | uint32 | 扩展 `IdChange` 中的混淆监听端口；非 0 表示支持乱序加密通告 |
+| `status_users` / `status_files` | int32 | TCP `Status`（0x34）包中的用户/文件数 |
+| `udp_users` / `udp_files` | uint32 | UDP `GlobServStat` 响应 |
+| `max_users` | uint32 | 最大用户数（UDP） |
+| `soft_files_limit` / `hard_files_limit` | uint32 | 软性/硬性文件限制（UDP） |
+| `udp_stats_valid` | bool | 是否已成功解析过 UDP 统计（需本机 UDP 可用） |
 | `download_rate` | int | 下载速率（实现相关） |
 | `upload_rate` | int | 上传速率 |
 | `milliseconds_since_last_receive` | int64 | 距上次接收毫秒 |

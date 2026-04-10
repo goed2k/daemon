@@ -109,6 +109,8 @@ type PieceDTO struct {
 type ServerDTO struct {
 	Identifier                   string `json:"identifier"`
 	Address                      string `json:"address"`
+	Name                         string `json:"name"`
+	Description                  string `json:"description"`
 	Configured                   bool   `json:"configured"`
 	Connected                    bool   `json:"connected"`
 	HandshakeCompleted           bool   `json:"handshake_completed"`
@@ -116,6 +118,17 @@ type ServerDTO struct {
 	Disconnecting                bool   `json:"disconnecting"`
 	ClientID                     int32  `json:"client_id"`
 	IDClass                      string `json:"id_class"`
+	TCPFlags                     int32  `json:"tcp_flags"`
+	ReportedIP                   uint32 `json:"reported_ip"`
+	ObfuscationTCPPort           uint32 `json:"obfuscation_tcp_port"`
+	StatusUsers                  int32  `json:"status_users"`
+	StatusFiles                  int32  `json:"status_files"`
+	UDPUsers                     uint32 `json:"udp_users"`
+	UDPFiles                     uint32 `json:"udp_files"`
+	MaxUsers                     uint32 `json:"max_users"`
+	SoftFilesLimit               uint32 `json:"soft_files_limit"`
+	HardFilesLimit               uint32 `json:"hard_files_limit"`
+	UDPStatsValid                bool   `json:"udp_stats_valid"`
 	DownloadRate                 int    `json:"download_rate"`
 	UploadRate                   int    `json:"upload_rate"`
 	MillisecondsSinceLastReceive int64  `json:"milliseconds_since_last_receive"`
