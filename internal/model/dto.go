@@ -62,15 +62,26 @@ type TransferDetailDTO struct {
 	Pieces []PieceDTO `json:"pieces"`
 }
 
-// PeerDTO 对端信息（供 UI 展示）。
+// PeerDTO 对端信息（供 UI 展示）；含 Hello 标签解析得到的昵称、客户端版本与 Misc 等。
 type PeerDTO struct {
-	Endpoint             string   `json:"endpoint"`
-	DownloadSpeed        int      `json:"download_speed"`
-	PayloadDownloadSpeed int      `json:"payload_download_speed"`
-	UploadSpeed          int      `json:"upload_speed"`
-	Source               string   `json:"source"`
-	ModName              string   `json:"mod_name"`
-	FailCount            int      `json:"fail_count"`
+	Endpoint             string `json:"endpoint"`
+	UserHash             string `json:"user_hash"`
+	NickName             string `json:"nick_name"`
+	Connected            bool   `json:"connected"`
+	TotalUploaded        uint64 `json:"total_uploaded"`
+	TotalDownloaded      uint64 `json:"total_downloaded"`
+	DownloadSpeed        int    `json:"download_speed"`
+	PayloadDownloadSpeed int    `json:"payload_download_speed"`
+	UploadSpeed          int    `json:"upload_speed"`
+	PayloadUploadSpeed   int    `json:"payload_upload_speed"`
+	Source               string `json:"source"`
+	ModName              string `json:"mod_name"`
+	Version              int    `json:"version"`
+	ModVersion           int    `json:"mod_version"`
+	StrModVersion        string `json:"str_mod_version"`
+	HelloMisc1           int    `json:"hello_misc1"`
+	HelloMisc2           int    `json:"hello_misc2"`
+	FailCount            int    `json:"fail_count"`
 }
 
 // PieceDTO 分片快照。

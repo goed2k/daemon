@@ -320,7 +320,24 @@
 
 ### GET `/transfers/{hash}/peers`
 
-**响应 `data`：** `PeerDTO` 数组（`endpoint`, `source`, 速率等）。
+**响应 `data`：** `PeerDTO` 数组。对端 **Hello / HelloAnswer** 标签解析结果（昵称、客户端标识、`hello_misc1` / `hello_misc2` 等）由底层 `goed2k.PeerInfo` 提供，经本接口透出。
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `endpoint` | string | `host:port` |
+| `user_hash` | string | 对端用户 Hash（十六进制） |
+| `nick_name` | string | Hello 昵称标签 |
+| `connected` | bool | 当前是否仍连接 |
+| `total_uploaded` / `total_downloaded` | uint64 | 与本用户累计上下传（积分，字节） |
+| `download_speed` / `payload_download_speed` / `upload_speed` / `payload_upload_speed` | int | 速率（字节/秒） |
+| `source` | string | 来源标记拼接（如 server、kad、resume 等） |
+| `mod_name` | string | Mod 名称（Hello） |
+| `version` | int | 客户端版本号（Hello 标签 0x11） |
+| `mod_version` | int | Mod 复合版本原始值 |
+| `str_mod_version` | string | Mod 版本可读串（如 `2.3.1`） |
+| `hello_misc1` | int | Hello 标签 **0xFA**（Misc options）原始整型 |
+| `hello_misc2` | int | Hello 标签 **0xFE**（Misc options 2）原始整型 |
+| `fail_count` | int | 失败计数 |
 
 ### GET `/transfers/{hash}/pieces`
 

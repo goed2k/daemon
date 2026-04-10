@@ -75,11 +75,22 @@ func mapTransfer(s goed2k.TransferSnapshot) model.TransferDTO {
 func mapPeer(p goed2k.PeerInfo) model.PeerDTO {
 	return model.PeerDTO{
 		Endpoint:             p.Endpoint.String(),
+		UserHash:             p.UserHash.String(),
+		NickName:             p.NickName,
+		Connected:            p.Connected,
+		TotalUploaded:        p.TotalUploaded,
+		TotalDownloaded:      p.TotalDownloaded,
 		DownloadSpeed:        p.DownloadSpeed,
 		PayloadDownloadSpeed: p.PayloadDownloadSpeed,
 		UploadSpeed:          p.UploadSpeed,
+		PayloadUploadSpeed:   p.PayloadUploadSpeed,
 		Source:               p.SourceString(),
 		ModName:              p.ModName,
+		Version:              p.Version,
+		ModVersion:           p.ModVersion,
+		StrModVersion:        p.StrModVersion,
+		HelloMisc1:           p.HelloMisc1,
+		HelloMisc2:           p.HelloMisc2,
 		FailCount:            p.FailCount,
 	}
 }
