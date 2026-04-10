@@ -40,7 +40,10 @@ func mapServer(s goed2k.ServerSnapshot) model.ServerDTO {
 	}
 }
 
-func mapDHT(d goed2k.DHTStatus) model.DHTStatusDTO {
+func mapDHT(d goed2k.DHTStatus, settingsDHTEnabled bool) model.DHTStatusDTO {
+	running := d.ListenPort > 0
+	// enabled：配置开启，或运行时已创建 tracker 且 UDP 已绑定（例如仅通过 API 启用 DHT）。
+	enabled := settingsDHTEnabled || running
 	return model.DHTStatusDTO{
 		Bootstrapped:      d.Bootstrapped,
 		Firewalled:        d.Firewalled,
@@ -52,6 +55,9 @@ func mapDHT(d goed2k.DHTStatus) model.DHTStatusDTO {
 		InitialBootstrap:  d.InitialBootstrap,
 		ListenPort:        d.ListenPort,
 		StoragePoint:      d.StoragePoint,
+		Enabled:           enabled,
+		Running:           running,
+		Nodes:             d.LiveNodes,
 	}
 }
 
@@ -148,7 +154,7 @@ func mapClientPeerEntry(p goed2k.ClientPeerSnapshot) model.ClientPeerEntryDTO {
 	}
 }
 
-func mapClientStatus(engineRunning bool, st goed2k.ClientStatus, dht goed2k.DHTStatus, dhtv6 goed2k.KADV6Status) model.ClientStatusDTO {
+func mapClientStatus(engineRunning bool, st goed2k.ClientStatus, dht goed2k.DHTStatus, dhtv6 goed2k.KADV6Status, dhtSettingsEnabled bool) model.ClientStatusDTO {
 	servers := make([]model.ServerDTO, 0, len(st.Servers))
 	for _, s := range st.Servers {
 		servers = append(servers, mapServer(s))
@@ -166,7 +172,7 @@ func mapClientStatus(engineRunning bool, st goed2k.ClientStatus, dht goed2k.DHTS
 		Servers:       servers,
 		Transfers:     transfers,
 		Peers:         peers,
-		DHT:           mapDHT(dht),
+		DHT:           mapDHT(dht, dhtSettingsEnabled),
 		DHTv6:         mapKADV6(dhtv6),
 		Totals: map[string]any{
 			"total_done":     st.TotalDone,

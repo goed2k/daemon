@@ -317,11 +317,11 @@ func (e *Engine) ClientStatus(ctx context.Context) (*model.ClientStatusDTO, erro
 	cli, err := e.requireClient()
 	if err != nil {
 		st := goed2k.ClientStatus{}
-		dto := mapClientStatus(false, st, goed2k.DHTStatus{}, goed2k.KADV6Status{})
+		dto := mapClientStatus(false, st, goed2k.DHTStatus{}, goed2k.KADV6Status{}, false)
 		return &dto, nil
 	}
 	ev := cli.Status()
-	dto := mapClientStatus(true, ev, cli.DHTStatus(), cli.DHTv6Status())
+	dto := mapClientStatus(true, ev, cli.DHTStatus(), cli.DHTv6Status(), cli.DHTEnabled())
 	return &dto, nil
 }
 
@@ -345,11 +345,11 @@ func (e *Engine) DHTStatus(ctx context.Context) (*model.DHTStatusDTO, error) {
 	_ = ctx
 	cli, err := e.requireClient()
 	if err != nil {
-		z := mapDHT(goed2k.DHTStatus{})
+		z := mapDHT(goed2k.DHTStatus{}, false)
 		return &z, nil
 	}
 	d := cli.DHTStatus()
-	dd := mapDHT(d)
+	dd := mapDHT(d, cli.DHTEnabled())
 	return &dd, nil
 }
 
@@ -969,7 +969,7 @@ func (e *Engine) WatchClientStatus(ctx context.Context, sink chan<- model.EventE
 					unsub()
 					break inner
 				}
-				dto := mapClientStatus(true, ev.Status, ev.DHT, cli.DHTv6Status())
+				dto := mapClientStatus(true, ev.Status, ev.DHT, cli.DHTv6Status(), cli.DHTEnabled())
 				e.pushEnvelope(sink, "client.status", map[string]any{"status": dto})
 			}
 		}

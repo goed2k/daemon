@@ -152,6 +152,10 @@ type DHTStatusDTO struct {
 	InitialBootstrap  bool   `json:"initial_bootstrap"`
 	ListenPort        int    `json:"listen_port"`
 	StoragePoint      string `json:"storage_point"`
+	// Enabled：配置启用或 UDP 已监听；Running：UDP 已绑定（listen_port>0）。Nodes：同 live_nodes，供状态栏。
+	Enabled  bool `json:"enabled"`
+	Running  bool `json:"running"`
+	Nodes    int  `json:"nodes"`
 }
 
 // KADV6StatusDTO IPv6 KAD/DHT 状态。
