@@ -891,7 +891,11 @@ func (e *Engine) RescanSharedDirs(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return cli.RescanSharedDirs()
+	// 大目录全量哈希耗时较长，异步执行以免 HTTP 写超时导致前端误以为失败。
+	go func() {
+		_ = cli.RescanSharedDirs()
+	}()
+	return nil
 }
 
 // ImportSharedFile 计算 ed2k 哈希并将文件加入共享库。
