@@ -12,6 +12,7 @@ import (
 	"github.com/goed2k/daemon/internal/config"
 	"github.com/goed2k/daemon/internal/model"
 	"github.com/goed2k/daemon/internal/store"
+	"github.com/goed2k/daemon/internal/version"
 )
 
 // Engine 封装唯一 goed2k.Client，所有对内核的访问经此入口。
@@ -259,7 +260,7 @@ func (e *Engine) Info(ctx context.Context) (*model.SystemInfo, error) {
 	}
 	e.mu.RUnlock()
 	return &model.SystemInfo{
-		DaemonVersion:      "0.1.0",
+		DaemonVersion:      version.Version,
 		EngineRunning:      run,
 		UptimeSeconds:      up,
 		RPCListen:          cfg.RPC.Listen,

@@ -15,6 +15,7 @@ builds:
       - -buildvcs=false
     ldflags:
       - -s -w
+      - -X github.com/goed2k/daemon/internal/version.Version={{.Version}}
     # 默认仅含 linux/amd64 等少数组合，需显式列出才会产出 Linux ARM 等架构
     goos:
       - linux
