@@ -91,3 +91,8 @@ func (s *TransferService) Peers(ctx context.Context, hash string) ([]model.PeerD
 func (s *TransferService) Pieces(ctx context.Context, hash string) ([]model.PieceDTO, error) {
 	return s.eng.ListTransferPieces(ctx, hash)
 }
+
+// SetPriority 设置下载优先级（0-4，对应 P0-P4，4 最高）。
+func (s *TransferService) SetPriority(ctx context.Context, hash string, priority int) error {
+	return s.eng.SetTransferPriority(ctx, hash, priority)
+}

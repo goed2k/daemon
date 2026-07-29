@@ -215,6 +215,55 @@ func (s *Server) handleNetworkDHTBootstrap(w http.ResponseWriter, r *http.Reques
 	WriteSuccess(w, map[string]any{"ok": true})
 }
 
+func (s *Server) handleNetworkDHTv6(w http.ResponseWriter, r *http.Request) {
+	st, err := s.Net.DHTv6(r.Context())
+	if err != nil {
+		WriteError(w, RequestLog(r), err)
+		return
+	}
+	WriteSuccess(w, st)
+}
+
+func (s *Server) handleNetworkDHTv6Enable(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	if err := s.Net.EnableDHTv6(r.Context()); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "network.dht_v6_enable")
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
+func (s *Server) handleNetworkDHTv6LoadNodes(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	var body sourcesBody
+	if err := decodeJSON(r, &body); err != nil {
+		WriteError(w, log, model.NewAppError(model.CodeBadRequest, "invalid json", err))
+		return
+	}
+	if err := s.Net.LoadNodes6(r.Context(), body.Sources); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "network.load_nodes6_dat", "count", len(body.Sources))
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
+func (s *Server) handleNetworkDHTv6Bootstrap(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	var body nodesBody
+	if err := decodeJSON(r, &body); err != nil {
+		WriteError(w, log, model.NewAppError(model.CodeBadRequest, "invalid json", err))
+		return
+	}
+	if err := s.Net.BootstrapNodes6(r.Context(), body.Nodes); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "network.dht_v6_bootstrap", "count", len(body.Nodes))
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
 func (s *Server) handleTransfersList(w http.ResponseWriter, r *http.Request) {
 	q := service.ListQuery{State: r.URL.Query().Get("state"), Sort: r.URL.Query().Get("sort")}
 	if v := r.URL.Query().Get("limit"); v != "" {
@@ -291,6 +340,26 @@ func (s *Server) handleTransfersResume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Info("audit", "action", "transfer.resume", "hash", hash)
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
+type transferPriorityBody struct {
+	Priority int `json:"priority"`
+}
+
+func (s *Server) handleTransfersPriority(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	hash := chi.URLParam(r, "hash")
+	var body transferPriorityBody
+	if err := decodeJSON(r, &body); err != nil {
+		WriteError(w, log, model.NewAppError(model.CodeBadRequest, "invalid json", err))
+		return
+	}
+	if err := s.Transfer.SetPriority(r.Context(), hash, body.Priority); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "transfer.priority", "hash", hash, "priority", body.Priority)
 	WriteSuccess(w, map[string]any{"ok": true})
 }
 

@@ -192,6 +192,7 @@
 | `disconnecting` | bool | 是否正在断开 |
 | `client_id` | int32 | **本机**在该服务器分配的客户端 ID |
 | `id_class` | string | 本机 ID 类型：`HIGH_ID` / `LOW_ID` / `UNKNOWN` |
+| `aux_port` | int32 | 扩展 `IdChange` 中的辅助端口（若有） |
 | `tcp_flags` | int32 | 服务器 `IdChange` 中的 TCP 标志（原始值） |
 | `reported_ip` | uint32 | 扩展 `IdChange` 中的 ReportedIP（若有） |
 | `obfuscation_tcp_port` | uint32 | 扩展 `IdChange` 中的混淆监听端口；非 0 表示支持乱序加密通告 |
@@ -271,6 +272,32 @@
 
 **响应 `data`：** `{ "ok": true }`
 
+### GET `/network/dht-v6`
+
+**响应 `data`：** `KADV6StatusDTO`（IPv6 KAD/DHT；引擎未运行时字段多为零值）。
+
+### POST `/network/dht-v6/enable`
+
+运行时启用 IPv6 KAD/DHT（若引擎已运行但未建 tracker，会创建并启动）。
+
+**响应 `data`：** `{ "ok": true }`
+
+### POST `/network/dht-v6/load-nodes`
+
+```json
+{ "sources": ["https://.../nodes6.dat", "/path/to/nodes6.dat"] }
+```
+
+**响应 `data`：** `{ "ok": true }`
+
+### POST `/network/dht-v6/bootstrap-nodes`
+
+```json
+{ "nodes": ["[2001:db8::1]:4672"] }
+```
+
+**响应 `data`：** `{ "ok": true }`
+
 ---
 
 ## 下载任务 `/transfers`
@@ -307,6 +334,8 @@
 | `eta` | int64 | 预估剩余秒（底层语义） |
 | `num_peers` / `active_peers` / `downloading_pieces` | int | 统计 |
 | `progress` | float | 0~1 |
+| `download_priority` | int | 下载优先级（0-4，对应 P0-P4，4 最高） |
+| `download_priority_label` | string | 优先级标签（如 `P2`） |
 | `ed2k_link` | string | 完整 ED2K 链接 |
 
 ### POST `/transfers`
@@ -330,6 +359,18 @@
 **响应 `data`：** `TransferDetailDTO`（在 `TransferDTO` 基础上增加 `peers`、`pieces`）。
 
 ### POST `/transfers/{hash}/pause` / `resume`
+
+**响应 `data`：** `{ "ok": true }`
+
+### POST `/transfers/{hash}/priority`
+
+设置下载任务优先级（与 goed2k `SetTransferPriority` 对齐）。
+
+```json
+{ "priority": 4 }
+```
+
+`priority` 取值 **0–4**，分别对应 **P0（最低）– P4（最高）**。
 
 **响应 `data`：** `{ "ok": true }`
 
@@ -509,7 +550,7 @@
 
 | type | data 说明 |
 |------|-----------|
-| `client.status` | `data.status` 为引擎状态快照（`engine_running`, `servers`, `transfers`, `dht`, `totals` 等） |
+| `client.status` | `data.status` 为引擎状态快照（`engine_running`, `servers`, `transfers`, `peers`, `dht`, `dht_v6`, `totals` 等） |
 | `transfer.progress` | `data.progress` 内含 `transfers` 数组（进度有变化的子集，字段与列表 DTO 对齐为主） |
 
 引擎未运行时仍会周期性推送「空/停止」意义上的状态，便于前端统一处理。

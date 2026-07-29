@@ -65,7 +65,9 @@ func (s *SystemService) ConfigSummary(ctx context.Context) *model.ConfigSummary 
 		RPCListen:              c.RPC.Listen,
 		EngineListenPort:       c.Engine.ListenPort,
 		EngineUDPPort:          c.Engine.UDPPort,
+		EngineUDPPortV6:        c.Engine.UDPPortV6,
 		EnableDHT:              c.Engine.EnableDHT,
+		EnableDHTv6:            c.Engine.EnableDHTv6,
 		DefaultDownloadDir:     c.Engine.DefaultDownloadDir,
 		StateEnabled:           c.State.Enabled,
 		StatePath:              c.State.Path,
@@ -73,6 +75,7 @@ func (s *SystemService) ConfigSummary(ctx context.Context) *model.ConfigSummary 
 		BootstrapServerCount:   len(c.Bootstrap.ServerAddresses),
 		BootstrapServerMetURLs: len(c.Bootstrap.ServerMetURLs),
 		BootstrapNodesDatURLs:  len(c.Bootstrap.NodesDatURLs),
+		BootstrapNodes6DatURLs: len(c.Bootstrap.Nodes6DatURLs),
 	}
 }
 
