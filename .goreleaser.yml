@@ -65,7 +65,7 @@ dockers_v2:
   - ids:
       - goed2kd
     images:
-      - "ghcr.io/chenjia404/{{.ProjectName}}"
+      - "ghcr.io/goed2k/{{.ProjectName}}"
     tags:
       - "{{.Version}}"
       - "latest"

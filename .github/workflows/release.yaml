@@ -1,5 +1,4 @@
-# 镜像同时推送到 ghcr.io 与 Docker Hub。
-# Secrets：DOCKERHUB_USERNAME、DOCKERHUB_TOKEN（Hub Access Token）。GHCR 使用内置 GITHUB_TOKEN，需 permissions.packages: write。
+# 镜像推送到 ghcr.io（组织 goed2k）。GHCR 使用内置 GITHUB_TOKEN，需 permissions.packages: write。
 name: goreleaser
 
 on:
