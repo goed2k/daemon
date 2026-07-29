@@ -20,39 +20,44 @@ type HealthStatus struct {
 
 // ConfigSummary 对外可见的配置摘要（避免泄漏 token 全文）。
 type ConfigSummary struct {
-	RPCListen              string `json:"rpc_listen"`
-	EngineListenPort       int    `json:"engine_listen_port"`
-	EngineUDPPort          int    `json:"engine_udp_port"`
-	EnableDHT              bool   `json:"enable_dht"`
-	DefaultDownloadDir     string `json:"default_download_dir"`
-	StateEnabled           bool   `json:"state_enabled"`
-	StatePath              string `json:"state_path"`
-	AutoSaveIntervalSec    int    `json:"auto_save_interval_seconds"`
-	BootstrapServerCount   int    `json:"bootstrap_server_count"`
-	BootstrapServerMetURLs int    `json:"bootstrap_server_met_url_count"`
-	BootstrapNodesDatURLs  int    `json:"bootstrap_nodes_dat_url_count"`
+	RPCListen               string `json:"rpc_listen"`
+	EngineListenPort        int    `json:"engine_listen_port"`
+	EngineUDPPort           int    `json:"engine_udp_port"`
+	EngineUDPPortV6         int    `json:"engine_udp_port_v6"`
+	EnableDHT               bool   `json:"enable_dht"`
+	EnableDHTv6             bool   `json:"enable_dht_v6"`
+	DefaultDownloadDir      string `json:"default_download_dir"`
+	StateEnabled            bool   `json:"state_enabled"`
+	StatePath               string `json:"state_path"`
+	AutoSaveIntervalSec     int    `json:"auto_save_interval_seconds"`
+	BootstrapServerCount    int    `json:"bootstrap_server_count"`
+	BootstrapServerMetURLs  int    `json:"bootstrap_server_met_url_count"`
+	BootstrapNodesDatURLs   int    `json:"bootstrap_nodes_dat_url_count"`
+	BootstrapNodes6DatURLs  int    `json:"bootstrap_nodes6_dat_url_count"`
 }
 
 // TransferDTO 任务列表项。
 type TransferDTO struct {
-	Hash              string  `json:"hash"`
-	FileName          string  `json:"file_name"`
-	FilePath          string  `json:"file_path"`
-	Size              int64   `json:"size"`
-	CreateTime        int64   `json:"create_time"`
-	State             string  `json:"state"`
-	Paused            bool    `json:"paused"`
-	DownloadRate      int     `json:"download_rate"`
-	UploadRate        int     `json:"upload_rate"`
-	TotalDone         int64   `json:"total_done"`
-	TotalReceived     int64   `json:"total_received"`
-	TotalWanted       int64   `json:"total_wanted"`
-	ETA               int64   `json:"eta"`
-	NumPeers          int     `json:"num_peers"`
-	ActivePeers       int     `json:"active_peers"`
-	DownloadingPieces int     `json:"downloading_pieces"`
-	Progress          float64 `json:"progress"`
-	ED2KLink          string  `json:"ed2k_link"`
+	Hash                   string  `json:"hash"`
+	FileName               string  `json:"file_name"`
+	FilePath               string  `json:"file_path"`
+	Size                   int64   `json:"size"`
+	CreateTime             int64   `json:"create_time"`
+	State                  string  `json:"state"`
+	Paused                 bool    `json:"paused"`
+	DownloadRate           int     `json:"download_rate"`
+	UploadRate             int     `json:"upload_rate"`
+	TotalDone              int64   `json:"total_done"`
+	TotalReceived          int64   `json:"total_received"`
+	TotalWanted            int64   `json:"total_wanted"`
+	ETA                    int64   `json:"eta"`
+	NumPeers               int     `json:"num_peers"`
+	ActivePeers            int     `json:"active_peers"`
+	DownloadingPieces      int     `json:"downloading_pieces"`
+	Progress               float64 `json:"progress"`
+	DownloadPriority       int     `json:"download_priority"`
+	DownloadPriorityLabel  string  `json:"download_priority_label"`
+	ED2KLink               string  `json:"ed2k_link"`
 }
 
 // TransferDetailDTO 任务详情（含 peers/pieces）。
@@ -118,6 +123,7 @@ type ServerDTO struct {
 	Disconnecting                bool   `json:"disconnecting"`
 	ClientID                     int32  `json:"client_id"`
 	IDClass                      string `json:"id_class"`
+	AuxPort                      int32  `json:"aux_port"`
 	TCPFlags                     int32  `json:"tcp_flags"`
 	ReportedIP                   uint32 `json:"reported_ip"`
 	ObfuscationTCPPort           uint32 `json:"obfuscation_tcp_port"`
@@ -148,6 +154,19 @@ type DHTStatusDTO struct {
 	StoragePoint      string `json:"storage_point"`
 }
 
+// KADV6StatusDTO IPv6 KAD/DHT 状态。
+type KADV6StatusDTO struct {
+	Bootstrapped      bool   `json:"bootstrapped"`
+	LiveNodes         int    `json:"live_nodes"`
+	ReplacementNodes  int    `json:"replacement_nodes"`
+	RouterNodes       int    `json:"router_nodes"`
+	RunningTraversals int    `json:"running_traversals"`
+	KnownNodes        int    `json:"known_nodes"`
+	InitialBootstrap  bool   `json:"initial_bootstrap"`
+	ListenPort        int    `json:"listen_port"`
+	StoragePoint      string `json:"storage_point"`
+}
+
 // ClientStatusDTO 引擎整体状态快照（用于 WS client.status）。
 type ClientStatusDTO struct {
 	EngineRunning bool                 `json:"engine_running"`
@@ -155,6 +174,7 @@ type ClientStatusDTO struct {
 	Transfers     []TransferDTO        `json:"transfers"`
 	Peers         []ClientPeerEntryDTO `json:"peers"`
 	DHT           DHTStatusDTO         `json:"dht"`
+	DHTv6         KADV6StatusDTO       `json:"dht_v6"`
 	Totals        map[string]any       `json:"totals"`
 }
 
@@ -182,6 +202,7 @@ type SearchResultDTO struct {
 	MediaCodec        string `json:"media_codec"`
 	Extension         string `json:"extension"`
 	FileType          string `json:"file_type"`
+	Note              string `json:"note"`
 	Source            string `json:"source"`
 	ED2KLink          string `json:"ed2k_link"`
 }

@@ -38,11 +38,15 @@ func (e *Engine) currentCfg() *config.Config {
 }
 
 func (e *Engine) settingsFromConfig() goed2k.Settings {
-	c := e.currentCfg().Engine
+	cfg := e.currentCfg()
+	config.ApplyDefaults(cfg)
+	c := cfg.Engine
 	st := goed2k.NewSettings()
 	st.ListenPort = c.ListenPort
 	st.UDPPort = c.UDPPort
+	st.UDPPortV6 = c.UDPPortV6
 	st.EnableDHT = c.EnableDHT
+	st.EnableDHTv6 = c.EnableDHTv6
 	st.EnableUPnP = c.EnableUPnP
 	st.PeerConnectionTimeout = c.PeerConnectionTimeout
 	st.ReconnectToServer = c.ReconnectToServer
@@ -50,6 +54,14 @@ func (e *Engine) settingsFromConfig() goed2k.Settings {
 	st.SessionConnectionsLimit = c.SessionConnectionsLimit
 	st.UploadSlots = c.UploadSlots
 	st.MaxUploadRateKB = c.MaxUploadRateKB
+	st.MaxDownloadRateKB = c.MaxDownloadRateKB
+	st.EnableCryptLayer = c.EnableCryptLayer
+	st.CryptLayerRequired = c.CryptLayerRequired
+	st.ObfuscationTCPPort = c.ObfuscationTCPPort
+	st.EnableSecIdent = c.EnableSecIdent
+	st.SecIdentRequired = c.SecIdentRequired
+	st.CreditsOnlyVerified = c.CreditsOnlyVerified
+	st.IdentityKeyPath = c.IdentityKeyPath
 	if e.log != nil {
 		st.Logger = e.log
 	}
@@ -81,6 +93,18 @@ func (e *Engine) applyBootstrap(cli *goed2k.Client) {
 		if len(b.KadNodes) > 0 {
 			if err := cli.AddDHTBootstrapNodes(b.KadNodes...); err != nil && e.log != nil {
 				e.log.Warn("bootstrap kad nodes", "err", err)
+			}
+		}
+	}
+	if e.currentCfg().Engine.EnableDHTv6 || len(b.Nodes6DatURLs) > 0 || len(b.KadV6Nodes) > 0 {
+		if len(b.Nodes6DatURLs) > 0 {
+			if err := cli.LoadDHTv6NodesDat(b.Nodes6DatURLs...); err != nil && e.log != nil {
+				e.log.Warn("bootstrap nodes6.dat", "err", err)
+			}
+		}
+		if len(b.KadV6Nodes) > 0 {
+			if err := cli.AddDHTv6BootstrapNodes(b.KadV6Nodes...); err != nil && e.log != nil {
+				e.log.Warn("bootstrap kad v6 nodes", "err", err)
 			}
 		}
 	}
@@ -272,11 +296,11 @@ func (e *Engine) ClientStatus(ctx context.Context) (*model.ClientStatusDTO, erro
 	cli, err := e.requireClient()
 	if err != nil {
 		st := goed2k.ClientStatus{}
-		dto := mapClientStatus(false, st, goed2k.DHTStatus{})
+		dto := mapClientStatus(false, st, goed2k.DHTStatus{}, goed2k.KADV6Status{})
 		return &dto, nil
 	}
 	ev := cli.Status()
-	dto := mapClientStatus(true, ev, cli.DHTStatus())
+	dto := mapClientStatus(true, ev, cli.DHTStatus(), cli.DHTv6Status())
 	return &dto, nil
 }
 
@@ -305,6 +329,19 @@ func (e *Engine) DHTStatus(ctx context.Context) (*model.DHTStatusDTO, error) {
 	}
 	d := cli.DHTStatus()
 	dd := mapDHT(d)
+	return &dd, nil
+}
+
+// DHTv6Status 当前 IPv6 KAD/DHT。
+func (e *Engine) DHTv6Status(ctx context.Context) (*model.KADV6StatusDTO, error) {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		z := mapKADV6(goed2k.KADV6Status{})
+		return &z, nil
+	}
+	d := cli.DHTv6Status()
+	dd := mapKADV6(d)
 	return &dd, nil
 }
 
@@ -381,6 +418,7 @@ func (e *Engine) EnableDHT(ctx context.Context) error {
 			return model.NewAppError(model.CodeInternalError, "dht start failed", err)
 		}
 		cli.Session().SyncDHTListenPort()
+		e.refreshUPnPIfNeeded(cli)
 	}
 	return nil
 }
@@ -409,6 +447,81 @@ func (e *Engine) AddDHTBootstrapNodes(ctx context.Context, nodes []string) error
 		return model.NewAppError(model.CodeBadRequest, "nodes required", nil)
 	}
 	return cli.AddDHTBootstrapNodes(nodes...)
+}
+
+// EnableDHTv6 运行时启用 IPv6 KAD/DHT。
+func (e *Engine) EnableDHTv6(ctx context.Context) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	tr := cli.EnableDHTv6()
+	if tr != nil {
+		if err := tr.Start(); err != nil {
+			return model.NewAppError(model.CodeInternalError, "dht v6 start failed", err)
+		}
+		cli.Session().SyncDHTv6ListenPort()
+		e.refreshUPnPIfNeeded(cli)
+	}
+	return nil
+}
+
+func (e *Engine) refreshUPnPIfNeeded(cli *goed2k.Client) {
+	if cli == nil || !e.currentCfg().Engine.EnableUPnP {
+		return
+	}
+	cli.Session().RefreshUPnPMapping()
+}
+
+// LoadDHTv6NodesSources 加载 nodes6.dat（可多源）。
+func (e *Engine) LoadDHTv6NodesSources(ctx context.Context, sources []string) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	if len(sources) == 0 {
+		return model.NewAppError(model.CodeBadRequest, "sources required", nil)
+	}
+	return cli.LoadDHTv6NodesDat(sources...)
+}
+
+// AddDHTv6BootstrapNodes 添加 IPv6 引导节点。
+func (e *Engine) AddDHTv6BootstrapNodes(ctx context.Context, nodes []string) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	if len(nodes) == 0 {
+		return model.NewAppError(model.CodeBadRequest, "nodes required", nil)
+	}
+	return cli.AddDHTv6BootstrapNodes(nodes...)
+}
+
+// SetTransferPriority 设置下载任务优先级。
+func (e *Engine) SetTransferPriority(ctx context.Context, hashHex string, priority int) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	h, herr := parseHashParam(hashHex)
+	if herr != nil {
+		return model.NewAppError(model.CodeInvalidHash, "invalid hash", herr)
+	}
+	p := goed2k.TransferPriority(priority)
+	if p < goed2k.TransferPriorityVeryLow || p > goed2k.TransferPriorityVeryHigh {
+		return model.NewAppError(model.CodeBadRequest, "invalid priority", nil)
+	}
+	if err := cli.SetTransferPriority(h, p); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return model.NewAppError(model.CodeTransferNotFound, "transfer not found", err)
+		}
+		return err
+	}
+	return nil
 }
 
 // AddTransferParams HTTP 层使用的添加任务参数。
@@ -441,8 +554,8 @@ func (e *Engine) AddTransferByED2K(ctx context.Context, p AddTransferParams) (*m
 	if dir == "" {
 		dir = e.currentCfg().Engine.DefaultDownloadDir
 	}
-	synthetic := goed2k.FormatLink(name, link.NumberValue, link.Hash)
-	_, targetPath, err := cli.AddLink(synthetic, dir)
+	linkStr := ed2kLinkForAdd(link, p.TargetName, strings.TrimSpace(p.ED2KLink))
+	_, targetPath, err := cli.AddLink(linkStr, dir)
 	if err != nil {
 		return nil, model.NewAppError(model.CodeBadRequest, "add transfer failed", err)
 	}
@@ -790,7 +903,7 @@ func (e *Engine) WatchClientStatus(ctx context.Context, sink chan<- model.EventE
 					unsub()
 					break inner
 				}
-				dto := mapClientStatus(true, ev.Status, ev.DHT)
+				dto := mapClientStatus(true, ev.Status, ev.DHT, cli.DHTv6Status())
 				e.pushEnvelope(sink, "client.status", map[string]any{"status": dto})
 			}
 		}

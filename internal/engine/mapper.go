@@ -22,6 +22,7 @@ func mapServer(s goed2k.ServerSnapshot) model.ServerDTO {
 		Disconnecting:                s.Disconnecting,
 		ClientID:                     s.ClientID,
 		IDClass:                      s.IDClass(),
+		AuxPort:                      s.AuxPort,
 		TCPFlags:                     s.TCPFlags,
 		ReportedIP:                   s.ReportedIP,
 		ObfuscationTCPPort:           s.ObfuscationTCPPort,
@@ -54,6 +55,20 @@ func mapDHT(d goed2k.DHTStatus) model.DHTStatusDTO {
 	}
 }
 
+func mapKADV6(d goed2k.KADV6Status) model.KADV6StatusDTO {
+	return model.KADV6StatusDTO{
+		Bootstrapped:      d.Bootstrapped,
+		LiveNodes:         d.LiveNodes,
+		ReplacementNodes:  d.ReplacementNodes,
+		RouterNodes:       d.RouterNodes,
+		RunningTraversals: d.RunningTraversals,
+		KnownNodes:        d.KnownNodes,
+		InitialBootstrap:  d.InitialBootstrap,
+		ListenPort:        d.ListenPort,
+		StoragePoint:      d.StoragePoint,
+	}
+}
+
 func mapTransfer(s goed2k.TransferSnapshot) model.TransferDTO {
 	st := s.Status
 	prog := float64(0)
@@ -64,24 +79,26 @@ func mapTransfer(s goed2k.TransferSnapshot) model.TransferDTO {
 		}
 	}
 	return model.TransferDTO{
-		Hash:              s.Hash.String(),
-		FileName:          s.FileName,
-		FilePath:          s.FilePath,
-		Size:              s.Size,
-		CreateTime:        s.CreateTime,
-		State:             string(st.State),
-		Paused:            st.Paused,
-		DownloadRate:      st.DownloadRate,
-		UploadRate:        st.UploadRate,
-		TotalDone:         st.TotalDone,
-		TotalReceived:     st.TotalReceived,
-		TotalWanted:       st.TotalWanted,
-		ETA:               st.ETA,
-		NumPeers:          st.NumPeers,
-		ActivePeers:       s.ActivePeers,
-		DownloadingPieces: st.DownloadingPieces,
-		Progress:          prog,
-		ED2KLink:          s.ED2KLink(),
+		Hash:                  s.Hash.String(),
+		FileName:              s.FileName,
+		FilePath:              s.FilePath,
+		Size:                  s.Size,
+		CreateTime:            s.CreateTime,
+		State:                 string(st.State),
+		Paused:                st.Paused,
+		DownloadRate:          st.DownloadRate,
+		UploadRate:            st.UploadRate,
+		TotalDone:             st.TotalDone,
+		TotalReceived:         st.TotalReceived,
+		TotalWanted:           st.TotalWanted,
+		ETA:                   st.ETA,
+		NumPeers:              st.NumPeers,
+		ActivePeers:           s.ActivePeers,
+		DownloadingPieces:     st.DownloadingPieces,
+		Progress:              prog,
+		DownloadPriority:      int(s.DownloadPriority),
+		DownloadPriorityLabel: s.DownloadPriority.Label(),
+		ED2KLink:              s.ED2KLink(),
 	}
 }
 
@@ -131,7 +148,7 @@ func mapClientPeerEntry(p goed2k.ClientPeerSnapshot) model.ClientPeerEntryDTO {
 	}
 }
 
-func mapClientStatus(engineRunning bool, st goed2k.ClientStatus, dht goed2k.DHTStatus) model.ClientStatusDTO {
+func mapClientStatus(engineRunning bool, st goed2k.ClientStatus, dht goed2k.DHTStatus, dhtv6 goed2k.KADV6Status) model.ClientStatusDTO {
 	servers := make([]model.ServerDTO, 0, len(st.Servers))
 	for _, s := range st.Servers {
 		servers = append(servers, mapServer(s))
@@ -150,6 +167,7 @@ func mapClientStatus(engineRunning bool, st goed2k.ClientStatus, dht goed2k.DHTS
 		Transfers:     transfers,
 		Peers:         peers,
 		DHT:           mapDHT(dht),
+		DHTv6:         mapKADV6(dhtv6),
 		Totals: map[string]any{
 			"total_done":     st.TotalDone,
 			"total_received": st.TotalReceived,
@@ -216,6 +234,7 @@ func mapSearchResult(r goed2k.SearchResult) model.SearchResultDTO {
 		MediaCodec:      r.MediaCodec,
 		Extension:       r.Extension,
 		FileType:        r.FileType,
+		Note:            r.Note,
 		Source:          src,
 		ED2KLink:        r.ED2KLink(),
 	}
@@ -254,6 +273,19 @@ func parseHashParam(hexHash string) (protocol.Hash, error) {
 		return protocol.Invalid, err
 	}
 	return h, nil
+}
+
+// ed2kLinkForAdd 在保留 AICH/分片哈希等扩展段的前提下选择传给 AddLink 的链接。
+// 若仅修改展示文件名则回退为基础 ed2k 链接（与历史行为一致）。
+func ed2kLinkForAdd(link goed2k.EMuleLink, targetName, original string) string {
+	name := link.StringValue
+	if trimmed := strings.TrimSpace(targetName); trimmed != "" {
+		name = trimmed
+	}
+	if name == link.StringValue && strings.TrimSpace(original) != "" {
+		return strings.TrimSpace(original)
+	}
+	return goed2k.FormatLink(name, link.NumberValue, link.Hash)
 }
 
 func sharedOriginString(o goed2k.SharedOrigin) string {

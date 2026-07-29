@@ -22,7 +22,9 @@ type RPCConfig struct {
 type EngineConfig struct {
 	ListenPort              int    `json:"listen_port"`
 	UDPPort                 int    `json:"udp_port"`
+	UDPPortV6               int    `json:"udp_port_v6"`
 	EnableDHT               bool   `json:"enable_dht"`
+	EnableDHTv6             bool   `json:"enable_dht_v6"`
 	EnableUPnP              bool   `json:"enable_upnp"`
 	PeerConnectionTimeout   int    `json:"peer_connection_timeout"`
 	ReconnectToServer       bool   `json:"reconnect_to_server"`
@@ -30,6 +32,14 @@ type EngineConfig struct {
 	SessionConnectionsLimit int    `json:"session_connections_limit"`
 	UploadSlots             int    `json:"upload_slots"`
 	MaxUploadRateKB         int    `json:"max_upload_rate_kb"`
+	MaxDownloadRateKB       int    `json:"max_download_rate_kb"`
+	EnableCryptLayer        bool   `json:"enable_crypt_layer"`
+	CryptLayerRequired      bool   `json:"crypt_layer_required"`
+	ObfuscationTCPPort      int    `json:"obfuscation_tcp_port"`
+	EnableSecIdent          bool   `json:"enable_sec_ident"`
+	SecIdentRequired        bool   `json:"sec_ident_required"`
+	CreditsOnlyVerified     bool   `json:"credits_only_verified"`
+	IdentityKeyPath         string `json:"identity_key_path"`
 	DefaultDownloadDir      string `json:"default_download_dir"`
 }
 
@@ -39,6 +49,8 @@ type BootstrapConfig struct {
 	ServerMetURLs   []string `json:"server_met_urls"`
 	NodesDatURLs    []string `json:"nodes_dat_urls"`
 	KadNodes        []string `json:"kad_nodes"`
+	Nodes6DatURLs   []string `json:"nodes6_dat_urls"`
+	KadV6Nodes      []string `json:"kad_v6_nodes"`
 }
 
 // StateConfig 状态持久化。
@@ -69,14 +81,17 @@ func Default() *Config {
 		Engine: EngineConfig{
 			ListenPort:              4661,
 			UDPPort:                 4662,
+			UDPPortV6:               4672,
 			EnableDHT:               true,
+			EnableDHTv6:             false,
 			EnableUPnP:              true,
 			PeerConnectionTimeout:   30,
 			ReconnectToServer:       true,
-			MaxConnectionsPerSecond:   10,
+			MaxConnectionsPerSecond: 10,
 			SessionConnectionsLimit: 20,
 			UploadSlots:             3,
 			MaxUploadRateKB:         0,
+			MaxDownloadRateKB:       0,
 			DefaultDownloadDir:      "./data/downloads",
 		},
 		Bootstrap: BootstrapConfig{
@@ -84,6 +99,8 @@ func Default() *Config {
 			ServerMetURLs:   []string{"http://upd.emule-security.org/server.met"},
 			NodesDatURLs:    []string{"https://upd.emule-security.org/nodes.dat"},
 			KadNodes:        []string{},
+			Nodes6DatURLs:   []string{},
+			KadV6Nodes:      []string{},
 		},
 		State: StateConfig{
 			Enabled:                 true,

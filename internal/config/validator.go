@@ -11,6 +11,7 @@ func Validate(c *Config) error {
 	if c == nil {
 		return fmt.Errorf("配置为空")
 	}
+	ApplyDefaults(c)
 	if strings.TrimSpace(c.RPC.AuthToken) == "" {
 		return fmt.Errorf("rpc.auth_token 不能为空")
 	}
@@ -28,6 +29,9 @@ func Validate(c *Config) error {
 	}
 	if c.Engine.ListenPort <= 0 || c.Engine.UDPPort <= 0 {
 		return fmt.Errorf("engine 端口无效")
+	}
+	if c.Engine.EnableDHTv6 && c.Engine.UDPPortV6 <= 0 {
+		return fmt.Errorf("enable_dht_v6=true 时 engine.udp_port_v6 必须大于 0")
 	}
 	if strings.TrimSpace(c.Engine.DefaultDownloadDir) == "" {
 		return fmt.Errorf("engine.default_download_dir 不能为空")
