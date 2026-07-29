@@ -11,6 +11,7 @@ func Validate(c *Config) error {
 	if c == nil {
 		return fmt.Errorf("配置为空")
 	}
+	ApplyDefaults(c)
 	if strings.TrimSpace(c.RPC.AuthToken) == "" {
 		return fmt.Errorf("rpc.auth_token 不能为空")
 	}

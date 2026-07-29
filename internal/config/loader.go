@@ -20,6 +20,7 @@ func LoadFromFile(path string) (*Config, error) {
 	if err := json.Unmarshal(raw, &c); err != nil {
 		return nil, err
 	}
+	ApplyDefaults(&c)
 	return &c, nil
 }
 

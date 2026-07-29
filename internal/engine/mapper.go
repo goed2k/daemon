@@ -275,6 +275,19 @@ func parseHashParam(hexHash string) (protocol.Hash, error) {
 	return h, nil
 }
 
+// ed2kLinkForAdd 在保留 AICH/分片哈希等扩展段的前提下选择传给 AddLink 的链接。
+// 若仅修改展示文件名则回退为基础 ed2k 链接（与历史行为一致）。
+func ed2kLinkForAdd(link goed2k.EMuleLink, targetName, original string) string {
+	name := link.StringValue
+	if trimmed := strings.TrimSpace(targetName); trimmed != "" {
+		name = trimmed
+	}
+	if name == link.StringValue && strings.TrimSpace(original) != "" {
+		return strings.TrimSpace(original)
+	}
+	return goed2k.FormatLink(name, link.NumberValue, link.Hash)
+}
+
 func sharedOriginString(o goed2k.SharedOrigin) string {
 	switch o {
 	case goed2k.SharedOriginDownloaded:
