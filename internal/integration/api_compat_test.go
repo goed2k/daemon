@@ -206,6 +206,71 @@ func TestTransferPriority_MalformedJSON(t *testing.T) {
 	}
 }
 
+func TestNetworkIPFilterLoad_EngineNotRunning(t *testing.T) {
+	ts := newTestHTTPServer(t, nil, false)
+	defer ts.Close()
+
+	body := bytes.NewBufferString(`{"path":"/tmp/ipfilter.dat"}`)
+	req := authRequest(t, http.MethodPost, ts.URL+"/api/v1/network/ipfilter/load", body)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("status = %d, want 503", resp.StatusCode)
+	}
+	env := decodeAPI(t, resp)
+	if env.Code != model.CodeEngineNotRunning {
+		t.Fatalf("code = %q, want ENGINE_NOT_RUNNING", env.Code)
+	}
+}
+
+func TestTransferHttpSource_EngineNotRunning(t *testing.T) {
+	ts := newTestHTTPServer(t, nil, false)
+	defer ts.Close()
+
+	hash := "31D6CFE0D16AE931B73C59D7E0C089C0"
+	body := bytes.NewBufferString(`{"url":"https://example.com/file.bin"}`)
+	req := authRequest(t, http.MethodPost, ts.URL+"/api/v1/transfers/"+hash+"/http-sources", body)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("status = %d, want 503", resp.StatusCode)
+	}
+	env := decodeAPI(t, resp)
+	if env.Code != model.CodeEngineNotRunning {
+		t.Fatalf("code = %q, want ENGINE_NOT_RUNNING", env.Code)
+	}
+}
+
+func TestTransferHttpSource_MalformedJSON(t *testing.T) {
+	ts := newTestHTTPServer(t, nil, false)
+	defer ts.Close()
+
+	hash := "31D6CFE0D16AE931B73C59D7E0C089C0"
+	body := bytes.NewBufferString(`{url:bad}`)
+	req := authRequest(t, http.MethodPost, ts.URL+"/api/v1/transfers/"+hash+"/http-sources", body)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Fatalf("status = %d, want 400", resp.StatusCode)
+	}
+	env := decodeAPI(t, resp)
+	if env.Code != model.CodeBadRequest {
+		t.Fatalf("code = %q, want BAD_REQUEST", env.Code)
+	}
+}
+
 func TestJSONRequest_UnknownFieldRejected(t *testing.T) {
 	ts := newTestHTTPServer(t, nil, false)
 	defer ts.Close()

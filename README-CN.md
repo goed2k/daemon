@@ -19,7 +19,7 @@
 
 ## 环境要求
 
-- Go **1.25+**（与 [go.mod](./go.mod) 中 `go` 指令一致）
+- Go **1.26+**（与 [go.mod](./go.mod) 中 `go` 指令一致）
 - 依赖见 [go.mod](./go.mod)
 
 Go 模块路径：`github.com/goed2k/daemon`（作为库引用时使用该 import 前缀）。

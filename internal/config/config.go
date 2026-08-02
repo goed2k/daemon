@@ -1,7 +1,12 @@
 package config
 
+const CurrentConfigVersion = 2
+
+const currentConfigVersion = CurrentConfigVersion
+
 // Config 守护进程完整配置（与实现文档 JSON 对齐）。
 type Config struct {
+	Version   int             `json:"config_version,omitempty"`
 	RPC       RPCConfig       `json:"rpc"`
 	Engine    EngineConfig    `json:"engine"`
 	Bootstrap BootstrapConfig `json:"bootstrap"`
@@ -40,6 +45,15 @@ type EngineConfig struct {
 	SecIdentRequired        bool   `json:"sec_ident_required"`
 	CreditsOnlyVerified     bool   `json:"credits_only_verified"`
 	IdentityKeyPath         string `json:"identity_key_path"`
+	UseEmuleTempLayout      bool   `json:"use_emule_temp_layout"`
+	PartialKadPublish       bool   `json:"partial_kad_publish"`
+	PreallocateDiskSpace    bool   `json:"preallocate_disk_space"`
+	UseSparseFiles          bool   `json:"use_sparse_files"`
+	EnableWebDownload       bool   `json:"enable_web_download"`
+	MaxHttpSources          int    `json:"max_http_sources"`
+	MaxConcurrentHttpBlocks int    `json:"max_concurrent_http_blocks"`
+	WebCacheDir             string `json:"web_cache_dir"`
+	HttpRequestTimeoutSec   int    `json:"http_request_timeout_sec"`
 	DefaultDownloadDir      string `json:"default_download_dir"`
 }
 
@@ -51,6 +65,7 @@ type BootstrapConfig struct {
 	KadNodes        []string `json:"kad_nodes"`
 	Nodes6DatURLs   []string `json:"nodes6_dat_urls"`
 	KadV6Nodes      []string `json:"kad_v6_nodes"`
+	IPFilterPaths   []string `json:"ipfilter_paths"`
 }
 
 // StateConfig 状态持久化。
@@ -71,6 +86,7 @@ type LoggingConfig struct {
 // Default 返回内建默认配置。
 func Default() *Config {
 	return &Config{
+		Version: currentConfigVersion,
 		RPC: RPCConfig{
 			Listen:               "127.0.0.1:18080",
 			AllowRemote:          false,
@@ -92,6 +108,18 @@ func Default() *Config {
 			UploadSlots:             3,
 			MaxUploadRateKB:         0,
 			MaxDownloadRateKB:       0,
+			EnableCryptLayer:        false,
+			CryptLayerRequired:      false,
+			ObfuscationTCPPort:      0,
+			EnableSecIdent:          false,
+			SecIdentRequired:        false,
+			CreditsOnlyVerified:     false,
+			IdentityKeyPath:         "",
+			PartialKadPublish:       true,
+			EnableWebDownload:       true,
+			MaxHttpSources:          4,
+			MaxConcurrentHttpBlocks: 2,
+			HttpRequestTimeoutSec:   30,
 			DefaultDownloadDir:      "./data/downloads",
 		},
 		Bootstrap: BootstrapConfig{
@@ -101,6 +129,7 @@ func Default() *Config {
 			KadNodes:        []string{},
 			Nodes6DatURLs:   []string{},
 			KadV6Nodes:      []string{},
+			IPFilterPaths:   []string{},
 		},
 		State: StateConfig{
 			Enabled:                 true,

@@ -72,6 +72,7 @@ func NewRouter(s *Server) http.Handler {
 		r.Post("/network/dht-v6/enable", s.handleNetworkDHTv6Enable)
 		r.Post("/network/dht-v6/load-nodes", s.handleNetworkDHTv6LoadNodes)
 		r.Post("/network/dht-v6/bootstrap-nodes", s.handleNetworkDHTv6Bootstrap)
+		r.Post("/network/ipfilter/load", s.handleNetworkIPFilterLoad)
 
 		r.Get("/transfers", s.handleTransfersList)
 		r.Post("/transfers", s.handleTransfersAdd)
@@ -79,6 +80,7 @@ func NewRouter(s *Server) http.Handler {
 		r.Post("/transfers/{hash}/pause", s.handleTransfersPause)
 		r.Post("/transfers/{hash}/resume", s.handleTransfersResume)
 		r.Post("/transfers/{hash}/priority", s.handleTransfersPriority)
+		r.Post("/transfers/{hash}/http-sources", s.handleTransfersHttpSource)
 		r.Delete("/transfers/{hash}", s.handleTransfersDelete)
 		r.Get("/transfers/{hash}/peers", s.handleTransfersPeers)
 		r.Get("/transfers/{hash}/pieces", s.handleTransfersPieces)

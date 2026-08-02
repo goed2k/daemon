@@ -96,3 +96,8 @@ func (s *TransferService) Pieces(ctx context.Context, hash string) ([]model.Piec
 func (s *TransferService) SetPriority(ctx context.Context, hash string, priority int) error {
 	return s.eng.SetTransferPriority(ctx, hash, priority)
 }
+
+// AddHttpSource 为任务添加 HTTP 下载源。
+func (s *TransferService) AddHttpSource(ctx context.Context, hash, url string) error {
+	return s.eng.AddHttpSource(ctx, hash, url)
+}

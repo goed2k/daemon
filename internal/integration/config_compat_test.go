@@ -68,6 +68,18 @@ func TestLegacyConfig_LoadAndValidate(t *testing.T) {
 	if c.Engine.EnableDHTv6 {
 		t.Fatal("legacy config should default enable_dht_v6 to false")
 	}
+	if c.Engine.MaxHttpSources != 4 {
+		t.Fatalf("MaxHttpSources = %d, want default 4", c.Engine.MaxHttpSources)
+	}
+	if !c.Engine.EnableWebDownload {
+		t.Fatal("legacy config should migrate enable_web_download to true")
+	}
+	if !c.Engine.PartialKadPublish {
+		t.Fatal("legacy config should migrate partial_kad_publish to true")
+	}
+	if c.Version != config.CurrentConfigVersion {
+		t.Fatalf("Version = %d, want %d", c.Version, config.CurrentConfigVersion)
+	}
 }
 
 func TestExampleConfigs_Valid(t *testing.T) {

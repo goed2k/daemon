@@ -264,6 +264,21 @@ func (s *Server) handleNetworkDHTv6Bootstrap(w http.ResponseWriter, r *http.Requ
 	WriteSuccess(w, map[string]any{"ok": true})
 }
 
+func (s *Server) handleNetworkIPFilterLoad(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	var body sharedPathBody
+	if err := decodeJSON(r, &body); err != nil {
+		WriteError(w, log, model.NewAppError(model.CodeBadRequest, "invalid json", err))
+		return
+	}
+	if err := s.Net.LoadIPFilter(r.Context(), body.Path); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "network.ipfilter_load", "path", body.Path)
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
 func (s *Server) handleTransfersList(w http.ResponseWriter, r *http.Request) {
 	q := service.ListQuery{State: r.URL.Query().Get("state"), Sort: r.URL.Query().Get("sort")}
 	if v := r.URL.Query().Get("limit"); v != "" {
@@ -360,6 +375,26 @@ func (s *Server) handleTransfersPriority(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	log.Info("audit", "action", "transfer.priority", "hash", hash, "priority", body.Priority)
+	WriteSuccess(w, map[string]any{"ok": true})
+}
+
+type transferHttpSourceBody struct {
+	URL string `json:"url"`
+}
+
+func (s *Server) handleTransfersHttpSource(w http.ResponseWriter, r *http.Request) {
+	log := RequestLog(r)
+	hash := chi.URLParam(r, "hash")
+	var body transferHttpSourceBody
+	if err := decodeJSON(r, &body); err != nil {
+		WriteError(w, log, model.NewAppError(model.CodeBadRequest, "invalid json", err))
+		return
+	}
+	if err := s.Transfer.AddHttpSource(r.Context(), hash, body.URL); err != nil {
+		WriteError(w, log, err)
+		return
+	}
+	log.Info("audit", "action", "transfer.http_source", "hash", hash, "url", body.URL)
 	WriteSuccess(w, map[string]any{"ok": true})
 }
 
