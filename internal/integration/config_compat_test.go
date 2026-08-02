@@ -68,6 +68,9 @@ func TestLegacyConfig_LoadAndValidate(t *testing.T) {
 	if c.Engine.EnableDHTv6 {
 		t.Fatal("legacy config should default enable_dht_v6 to false")
 	}
+	if c.Engine.MaxHttpSources != 4 {
+		t.Fatalf("MaxHttpSources = %d, want default 4", c.Engine.MaxHttpSources)
+	}
 }
 
 func TestExampleConfigs_Valid(t *testing.T) {

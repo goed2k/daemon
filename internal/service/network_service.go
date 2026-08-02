@@ -81,3 +81,8 @@ func (s *NetworkService) LoadNodes6(ctx context.Context, sources []string) error
 func (s *NetworkService) BootstrapNodes6(ctx context.Context, nodes []string) error {
 	return s.eng.AddDHTv6BootstrapNodes(ctx, nodes)
 }
+
+// LoadIPFilter 加载 ipfilter.dat。
+func (s *NetworkService) LoadIPFilter(ctx context.Context, path string) error {
+	return s.eng.LoadIPFilter(ctx, path)
+}

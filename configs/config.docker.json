@@ -27,6 +27,15 @@
     "sec_ident_required": false,
     "credits_only_verified": false,
     "identity_key_path": "",
+    "use_emule_temp_layout": false,
+    "partial_kad_publish": true,
+    "preallocate_disk_space": false,
+    "use_sparse_files": false,
+    "enable_web_download": true,
+    "max_http_sources": 4,
+    "max_concurrent_http_blocks": 2,
+    "web_cache_dir": "",
+    "http_request_timeout_sec": 30,
     "default_download_dir": "./data/downloads"
   },
   "bootstrap": {
@@ -41,7 +50,8 @@
     ],
     "kad_nodes": [],
     "nodes6_dat_urls": [],
-    "kad_v6_nodes": []
+    "kad_v6_nodes": [],
+    "ipfilter_paths": []
   },
   "state": {
     "enabled": true,

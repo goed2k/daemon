@@ -62,6 +62,15 @@ func (e *Engine) settingsFromConfig() goed2k.Settings {
 	st.SecIdentRequired = c.SecIdentRequired
 	st.CreditsOnlyVerified = c.CreditsOnlyVerified
 	st.IdentityKeyPath = c.IdentityKeyPath
+	st.UseEmuleTempLayout = c.UseEmuleTempLayout
+	st.PartialKadPublish = c.PartialKadPublish
+	st.PreallocateDiskSpace = c.PreallocateDiskSpace
+	st.UseSparseFiles = c.UseSparseFiles
+	st.EnableWebDownload = c.EnableWebDownload
+	st.MaxHttpSources = c.MaxHttpSources
+	st.MaxConcurrentHttpBlocks = c.MaxConcurrentHttpBlocks
+	st.WebCacheDir = c.WebCacheDir
+	st.HttpRequestTimeoutSec = c.HttpRequestTimeoutSec
 	if e.log != nil {
 		st.Logger = e.log
 	}
@@ -106,6 +115,15 @@ func (e *Engine) applyBootstrap(cli *goed2k.Client) {
 			if err := cli.AddDHTv6BootstrapNodes(b.KadV6Nodes...); err != nil && e.log != nil {
 				e.log.Warn("bootstrap kad v6 nodes", "err", err)
 			}
+		}
+	}
+	for _, p := range b.IPFilterPaths {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		if err := cli.LoadIPFilter(p); err != nil && e.log != nil {
+			e.log.Warn("bootstrap ipfilter", "path", p, "err", err)
 		}
 	}
 }
@@ -520,6 +538,47 @@ func (e *Engine) SetTransferPriority(ctx context.Context, hashHex string, priori
 			return model.NewAppError(model.CodeTransferNotFound, "transfer not found", err)
 		}
 		return err
+	}
+	return nil
+}
+
+// AddHttpSource 为指定任务添加 HTTP 下载源。
+func (e *Engine) AddHttpSource(ctx context.Context, hashHex, sourceURL string) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	h, herr := parseHashParam(hashHex)
+	if herr != nil {
+		return model.NewAppError(model.CodeInvalidHash, "invalid hash", herr)
+	}
+	url := strings.TrimSpace(sourceURL)
+	if url == "" {
+		return model.NewAppError(model.CodeBadRequest, "url required", nil)
+	}
+	if err := cli.AddHttpSource(h, url); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return model.NewAppError(model.CodeTransferNotFound, "transfer not found", err)
+		}
+		return model.NewAppError(model.CodeBadRequest, "add http source failed", err)
+	}
+	return nil
+}
+
+// LoadIPFilter 从 ipfilter.dat 加载 IP 过滤规则。
+func (e *Engine) LoadIPFilter(ctx context.Context, path string) error {
+	_ = ctx
+	cli, err := e.requireClient()
+	if err != nil {
+		return err
+	}
+	p := strings.TrimSpace(path)
+	if p == "" {
+		return model.NewAppError(model.CodeBadRequest, "path required", nil)
+	}
+	if err := cli.LoadIPFilter(p); err != nil {
+		return model.NewAppError(model.CodeBadRequest, "load ipfilter failed", err)
 	}
 	return nil
 }

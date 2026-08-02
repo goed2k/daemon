@@ -298,6 +298,16 @@
 
 **响应 `data`：** `{ "ok": true }`
 
+### POST `/network/ipfilter/load`
+
+从 `ipfilter.dat` 加载 IP 过滤规则（与 goed2k `LoadIPFilter` 对齐）。启动时也可在配置 `bootstrap.ipfilter_paths` 中预置路径。
+
+```json
+{ "path": "/path/to/ipfilter.dat" }
+```
+
+**响应 `data`：** `{ "ok": true }`
+
 ---
 
 ## 下载任务 `/transfers`
@@ -371,6 +381,16 @@
 ```
 
 `priority` 取值 **0–4**，分别对应 **P0（最低）– P4（最高）**。
+
+**响应 `data`：** `{ "ok": true }`
+
+### POST `/transfers/{hash}/http-sources`
+
+为任务添加 HTTP 下载源（与 goed2k `AddHttpSource` 对齐；需 `engine.enable_web_download=true`）。
+
+```json
+{ "url": "https://example.com/file.bin" }
+```
 
 **响应 `data`：** `{ "ok": true }`
 
