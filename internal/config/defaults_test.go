@@ -41,3 +41,47 @@ func TestLoadFromFileAppliesDefaults(t *testing.T) {
 		t.Fatalf("UDPPortV6 = %d, want %d", c.Engine.UDPPortV6, defaultUDPPortV6)
 	}
 }
+
+func TestApplyDefaults_LegacyConfigMigration(t *testing.T) {
+	c := &Config{
+		Engine: EngineConfig{
+			ListenPort:         4661,
+			UDPPort:            4662,
+			DefaultDownloadDir: "/tmp",
+		},
+	}
+	ApplyDefaults(c)
+	if !c.Engine.EnableWebDownload {
+		t.Fatal("legacy config should migrate enable_web_download to true")
+	}
+	if !c.Engine.PartialKadPublish {
+		t.Fatal("legacy config should migrate partial_kad_publish to true")
+	}
+	if c.Version != currentConfigVersion {
+		t.Fatalf("Version = %d, want %d", c.Version, currentConfigVersion)
+	}
+	if c.Engine.MaxHttpSources != defaultMaxHttpSources {
+		t.Fatalf("MaxHttpSources = %d, want %d", c.Engine.MaxHttpSources, defaultMaxHttpSources)
+	}
+}
+
+func TestApplyDefaults_PreservesExplicitWebDownloadOff(t *testing.T) {
+	c := &Config{
+		Version: currentConfigVersion,
+		Engine: EngineConfig{
+			EnableWebDownload:       false,
+			PartialKadPublish:       false,
+			MaxHttpSources:          2,
+			MaxConcurrentHttpBlocks: 1,
+			HttpRequestTimeoutSec:   15,
+			DefaultDownloadDir:      "/tmp",
+		},
+	}
+	ApplyDefaults(c)
+	if c.Engine.EnableWebDownload {
+		t.Fatal("explicit enable_web_download=false should be preserved on v2 config")
+	}
+	if c.Engine.PartialKadPublish {
+		t.Fatal("explicit partial_kad_publish=false should be preserved on v2 config")
+	}
+}

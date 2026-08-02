@@ -171,6 +171,8 @@
 
 **响应 `data`：** 更新后的完整配置（与 GET 相同）。
 
+配置文件可选 `config_version` 字段（当前为 **2**）。低于 2 的旧配置在加载时会自动迁移 HTTP/KAD 相关默认值；若需显式关闭 `enable_web_download` 或 `partial_kad_publish`，请使用 `config_version: 2` 并写入目标值。
+
 ---
 
 ## 网络 `/network`
@@ -301,6 +303,8 @@
 ### POST `/network/ipfilter/load`
 
 从 `ipfilter.dat` 加载 IP 过滤规则（与 goed2k `LoadIPFilter` 对齐）。启动时也可在配置 `bootstrap.ipfilter_paths` 中预置路径。
+
+注意：每次加载会**替换**当前内存中的过滤规则；`ipfilter_paths` 配置多个路径时，按顺序加载，**最后一次成功加载的规则生效**。
 
 ```json
 { "path": "/path/to/ipfilter.dat" }

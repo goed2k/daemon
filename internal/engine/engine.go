@@ -79,6 +79,18 @@ func (e *Engine) settingsFromConfig() goed2k.Settings {
 
 func (e *Engine) applyBootstrap(cli *goed2k.Client) {
 	b := e.currentCfg().Bootstrap
+	if len(b.IPFilterPaths) > 1 && e.log != nil {
+		e.log.Info("bootstrap ipfilter", "count", len(b.IPFilterPaths), "note", "each path replaces the previous filter; last successful load wins")
+	}
+	for _, p := range b.IPFilterPaths {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		if err := cli.LoadIPFilter(p); err != nil && e.log != nil {
+			e.log.Warn("bootstrap ipfilter", "path", p, "err", err)
+		}
+	}
 	if len(b.ServerAddresses) > 0 {
 		if err := cli.ConnectServers(b.ServerAddresses...); err != nil && e.log != nil {
 			e.log.Warn("bootstrap connect servers", "err", err)
@@ -115,15 +127,6 @@ func (e *Engine) applyBootstrap(cli *goed2k.Client) {
 			if err := cli.AddDHTv6BootstrapNodes(b.KadV6Nodes...); err != nil && e.log != nil {
 				e.log.Warn("bootstrap kad v6 nodes", "err", err)
 			}
-		}
-	}
-	for _, p := range b.IPFilterPaths {
-		p = strings.TrimSpace(p)
-		if p == "" {
-			continue
-		}
-		if err := cli.LoadIPFilter(p); err != nil && e.log != nil {
-			e.log.Warn("bootstrap ipfilter", "path", p, "err", err)
 		}
 	}
 }

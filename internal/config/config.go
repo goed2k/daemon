@@ -1,7 +1,12 @@
 package config
 
+const CurrentConfigVersion = 2
+
+const currentConfigVersion = CurrentConfigVersion
+
 // Config 守护进程完整配置（与实现文档 JSON 对齐）。
 type Config struct {
+	Version   int             `json:"config_version,omitempty"`
 	RPC       RPCConfig       `json:"rpc"`
 	Engine    EngineConfig    `json:"engine"`
 	Bootstrap BootstrapConfig `json:"bootstrap"`
@@ -81,6 +86,7 @@ type LoggingConfig struct {
 // Default 返回内建默认配置。
 func Default() *Config {
 	return &Config{
+		Version: currentConfigVersion,
 		RPC: RPCConfig{
 			Listen:               "127.0.0.1:18080",
 			AllowRemote:          false,
@@ -102,6 +108,13 @@ func Default() *Config {
 			UploadSlots:             3,
 			MaxUploadRateKB:         0,
 			MaxDownloadRateKB:       0,
+			EnableCryptLayer:        false,
+			CryptLayerRequired:      false,
+			ObfuscationTCPPort:      0,
+			EnableSecIdent:          false,
+			SecIdentRequired:        false,
+			CreditsOnlyVerified:     false,
+			IdentityKeyPath:         "",
 			PartialKadPublish:       true,
 			EnableWebDownload:       true,
 			MaxHttpSources:          4,

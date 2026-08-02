@@ -2,7 +2,7 @@
 # 构建：docker build -t goed2kd .
 # 运行：docker run --rm -p 18080:18080 -p 4661:4661 -p 4662:4662/udp -v goed2kd-data:/app/data goed2kd
 
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 RUN apk add --no-cache git ca-certificates
 

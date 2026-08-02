@@ -23,8 +23,11 @@ func Validate(c *Config) error {
 		if err != nil {
 			return fmt.Errorf("rpc.listen 无效: %w", err)
 		}
-		if host == "0.0.0.0" || host == "::" {
-			return fmt.Errorf("allow_remote=false 时不允许监听 0.0.0.0 或::")
+		if host == "0.0.0.0" {
+			return fmt.Errorf("allow_remote=false 时不允许监听 0.0.0.0")
+		}
+		if host == "::" {
+			return fmt.Errorf("allow_remote=false 时不允许监听 IPv6 全零地址")
 		}
 	}
 	if c.Engine.ListenPort <= 0 || c.Engine.UDPPort <= 0 {
